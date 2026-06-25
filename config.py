@@ -10,9 +10,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 # Do'kon manzili haqida ma'lumot
 STORE_ADDRESS = (
     "📍 **Do'konimiz manzili:**\n"
-    "Toshkent shahri, Chilonzor tumani, Lutfiy ko'chasi, 24-uy.\n"
-    "Mo'ljal: Lutfiy bog'i ro'parasi.\n\n"
-    "⏰ **Ish vaqti:** Har kuni 09:00 dan 20:00 gacha."
+    "Андижон шахар, Сой, маззавод кичик саноат зонаси 5-уй"
 )
 
 # Do'kon koordinatalari (Xaritada yuborish uchun)
