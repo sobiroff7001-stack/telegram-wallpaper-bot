@@ -19,6 +19,7 @@ load_dotenv()
 session = requests.Session()
 session.verify = False
 apihelper.session = session
+apihelper.ENABLE_MIDDLEWARE = True
 
 # Botni ishga tushirish
 if not config.BOT_TOKEN:
