@@ -1,0 +1,781 @@
+[
+  {
+    "category": "Basalt Maxsulotlari",
+    "items": [
+      {
+        "id": "basalt-1",
+        "name": "BASALTIUM FACADE (100 пл 1 уп 6 плит (4,32m2))",
+        "size": "1200*600*50",
+        "unit": "1 kv",
+        "priceValue": 42000,
+        "currency": "UZS",
+        "image_file": "basalt-1.jpg"
+      },
+      {
+        "id": "basalt-2",
+        "name": "BASALTIUM FACADE LIGHT 40 (1200*600*50) 8 плит",
+        "size": "1200*600*50",
+        "unit": "1 kv",
+        "priceValue": 21000,
+        "currency": "UZS",
+        "image_file": "basalt-2.jpg"
+      },
+      {
+        "id": "basalt-3",
+        "name": "BASALTIUM FACADE STD 120 (1200*600*50) 6 плит",
+        "size": "1200*600*50",
+        "unit": "1 kv",
+        "priceValue": 52000,
+        "currency": "UZS",
+        "image_file": "basalt-3.jpg"
+      },
+      {
+        "id": "basalt-4",
+        "name": "BASALTIUM FACADE UNIVERSAL 50 (1200*600*50) 8 пл",
+        "size": "1200*600*50",
+        "unit": "1 kv",
+        "priceValue": 25000,
+        "currency": "UZS",
+        "image_file": "basalt-4.jpg"
+      },
+      {
+        "id": "basalt-5",
+        "name": "BASALTIUM FACADE VENT PRO 80 (1200*600*50) 8 пл",
+        "size": "1200*600*50",
+        "unit": "1 kv",
+        "priceValue": 36000,
+        "currency": "UZS",
+        "image_file": "basalt-5.jpg"
+      },
+      {
+        "id": "basalt-6",
+        "name": "BASALT WOOL FACAD 1200x600x50",
+        "size": "1200*600*50",
+        "unit": "1 kv",
+        "priceValue": 44000,
+        "currency": "UZS",
+        "image_file": "Дизайн без названия.png"
+      },
+      {
+        "id": "basalt-7",
+        "name": "BASALT WOOL FACAD STANDART 1200x600x50",
+        "size": "1200*600*50",
+        "unit": "1 kv",
+        "priceValue": 53000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_cdlo6vcdlo6vcdlo.png"
+      },
+      {
+        "id": "basalt-8",
+        "name": "BASALT WOOL UNIVERSAL 5,76m2 1200X600X50",
+        "size": "1200*600*50",
+        "unit": "1 kv",
+        "priceValue": 25000,
+        "currency": "UZS",
+        "image_file": "Дизайн без названия.png"
+      },
+      {
+        "id": "basalt-9",
+        "name": "BASALT WOOL VENT-PRO 1200X600X50",
+        "size": "1200*600*50",
+        "unit": "1 kv",
+        "priceValue": 36000,
+        "currency": "UZS",
+        "image_file": "Дизайн без названия.png"
+      },
+      {
+        "id": "basalt-10",
+        "name": "BASALT WOOL LIGHT 1200 x 600 x 50",
+        "size": "1200*600*50",
+        "unit": "1 kv",
+        "priceValue": 21000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_cdlo6vcdlo6vcdlo.png"
+      }
+    ]
+  },
+  {
+    "category": "Mineral va Steklo vatalar",
+    "items": [
+      {
+        "id": "mineral-1",
+        "name": "Vetonit Warm House-TWIN-50 50x1220x5490/Y",
+        "size": "50x1220x5490",
+        "unit": "13,4м2",
+        "priceValue": 14,
+        "currency": "USD",
+        "image_file": "Gemini_Generated_Image_d0fpmcd0fpmcd0fp.png"
+      },
+      {
+        "id": "mineral-2",
+        "name": "Кнауф рулон-16,6кв",
+        "size": "1,220*6,800",
+        "unit": "16,6 m2",
+        "priceValue": null,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_9lillg9lillg9lil.png"
+      },
+      {
+        "id": "mineral-3",
+        "name": "Стекловата ECOVER- 12кв безфольга",
+        "size": "1,2*10м",
+        "unit": "12 м2",
+        "priceValue": 120000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_peysigpeysigpeys.png"
+      },
+      {
+        "id": "mineral-4",
+        "name": "Стекловата ECOVER- 15кв безфольга",
+        "size": "1,2*12,5м",
+        "unit": "15 м2",
+        "priceValue": 135000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_peysigpeysigpeys.png"
+      },
+      {
+        "id": "mineral-5",
+        "name": "Стекловата ECOVER- 7.2 плита (16 пл)",
+        "size": "1200*60*50",
+        "unit": "7,2м2",
+        "priceValue": 110000,
+        "currency": "UZS",
+        "image_file": "mineral-5.jpg"
+      },
+      {
+        "id": "mineral-6",
+        "name": "Стекловата ECOVER-12кв фольга",
+        "size": "1,2*10м",
+        "unit": "12 м2",
+        "priceValue": 165000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_peysigpeysigpeys.png"
+      },
+      {
+        "id": "mineral-7",
+        "name": "Стекловата ECOVER-15кв фольга.",
+        "size": "1,2*12,5м",
+        "unit": "15 м2",
+        "priceValue": 205000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_peysigpeysigpeys.png"
+      },
+      {
+        "id": "mineral-8",
+        "name": "Стекловата ECOVER-18кв фольга",
+        "size": "1,2*15м",
+        "unit": "18 м2",
+        "priceValue": 235000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_peysigpeysigpeys.png"
+      },
+      {
+        "id": "mineral-9",
+        "name": "Стекловата TERMOWOOL 15 кв",
+        "size": "1,2*12,5м",
+        "unit": "15м2",
+        "priceValue": 195000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_cptkngcptkngcptk.png"
+      },
+      {
+        "id": "mineral-10",
+        "name": "Стекловата TERMOWOOL 18 кв",
+        "size": "1,2*15м",
+        "unit": "18м2",
+        "priceValue": 230000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_cptkngcptkngcptk.png"
+      }
+    ]
+  },
+  {
+    "category": "Paroizolyatsiya maxsulotlari",
+    "items": [
+      {
+        "id": "paro-1",
+        "name": "Изоспан А 3-090/1600 70м.кв",
+        "size": "1,6*43,75м",
+        "unit": "шт",
+        "priceValue": 525000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_lak25flak25flak2 (1).png"
+      },
+      {
+        "id": "paro-2",
+        "name": "Изоспан А 2-050/1600 60 м.кв",
+        "size": "1,6*37,5м",
+        "unit": "шт",
+        "priceValue": 250000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_7p9lj97p9lj97p9l.png"
+      },
+      {
+        "id": "paro-3",
+        "name": "Изоспан В-060/1600-серебристый с лог 70м.кв",
+        "size": "1,6*43,75м",
+        "unit": "шт",
+        "priceValue": 400000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_htpnrehtpnrehtpn.png"
+      },
+      {
+        "id": "paro-4",
+        "name": "Изоспан В fix-060/1600-серебристый с разметкой 70 м.кв",
+        "size": "1,6*43,75м",
+        "unit": "шт",
+        "priceValue": 450000,
+        "currency": "UZS",
+        "image_file": "izospan.webp"
+      },
+      {
+        "id": "paro-5",
+        "name": "Изоспан А-3-090/1600 чёрный 70м.кв",
+        "size": "1,6*43,75м",
+        "unit": "шт",
+        "priceValue": 525000,
+        "currency": "UZS",
+        "image_file": "Gemini_Generated_Image_6q4jr6q4jr6q4jr6.png"
+      },
+      {
+        "id": "paro-6",
+        "name": "Изоспан Тёплый дом А (Хитой-Узб)",
+        "size": "1,5*40м",
+        "unit": "шт",
+        "priceValue": 210000,
+        "currency": "UZS",
+        "image_file": "ghjm.png"
+      },
+      {
+        "id": "paro-7",
+        "name": "Изоспан Тёплый дом Б (Хитой-Узб)",
+        "size": "1,5*40м",
+        "unit": "шт",
+        "priceValue": 210000,
+        "currency": "UZS",
+        "image_file": "44444444444.png"
+      }
+    ]
+  },
+  {
+    "category": "XPS maxsulotlari",
+    "items": [
+      {
+        "id": "xps-1",
+        "name": "XPS ТЕХНОПЛЕКС 20 мм (15плит)",
+        "size": "1200*600*20мм 15 плит",
+        "unit": "шт",
+        "priceValue": 9500,
+        "currency": "UZS",
+        "image_file": "xps_20mm.jpg"
+      },
+      {
+        "id": "xps-2",
+        "name": "XPS ТЕХНОПЛЕКС 30 мм (10плит)",
+        "size": "1200*600*30мм 10 плит",
+        "unit": "шт",
+        "priceValue": 15000,
+        "currency": "UZS",
+        "image_file": "xps_30mm.jpg"
+      },
+      {
+        "id": "xps-3",
+        "name": "XPS ТЕХНОПЛЕКС 50 мм (6плит)",
+        "size": "1200*600*50мм 6 плит",
+        "unit": "шт",
+        "priceValue": 25000,
+        "currency": "UZS",
+        "image_file": "xps_50mm.jpg"
+      },
+      {
+        "id": "xps-4",
+        "name": "Теплекс 50 мм",
+        "size": "1200*600*50мм 6 плит",
+        "unit": "шт",
+        "priceValue": 25000,
+        "currency": "UZS",
+        "image_file": "teplex_50mm.jpg"
+      },
+      {
+        "id": "xps-5",
+        "name": "Теплекс 30 мм",
+        "size": "1200*600*30мм 13 плит",
+        "unit": "шт",
+        "priceValue": 15000,
+        "currency": "UZS",
+        "image_file": "teplex_30mm.jpg"
+      },
+      {
+        "id": "xps-6",
+        "name": "Теплекс 20 мм",
+        "size": "1200*600*20мм 20 плит",
+        "unit": "шт",
+        "priceValue": 10000,
+        "currency": "UZS",
+        "image_file": "teplex_20mm.jpg"
+      },
+      {
+        "id": "xps-7",
+        "name": "Пеноплекс Стена 50 мм",
+        "size": "1200*600*50мм 8 плит",
+        "unit": "шт",
+        "priceValue": 30000,
+        "currency": "UZS",
+        "image_file": "xps-7.jpg"
+      },
+      {
+        "id": "xps-8",
+        "name": "Пеноплекс Стена 30 мм",
+        "size": "1200*600*50мм 13 плит",
+        "unit": "шт",
+        "priceValue": 18500,
+        "currency": "UZS",
+        "image_file": "xps-8.jpg"
+      },
+      {
+        "id": "xps-9",
+        "name": "Пеноплекс Комфорт 50мм",
+        "size": "1200*600*50мм 7 плит",
+        "unit": "шт",
+        "priceValue": 29000,
+        "currency": "UZS",
+        "image_file": "penoplex_komfort_50mm.jpg"
+      },
+      {
+        "id": "xps-10",
+        "name": "Пеноплекс комфорт 30 мм",
+        "size": "1200*600*30мм 13 плит",
+        "unit": "шт",
+        "priceValue": 17000,
+        "currency": "UZS",
+        "image_file": "penoplex_komfort_30mm.jpg"
+      },
+      {
+        "id": "xps-11",
+        "name": "Пеноплекс комфорт 20 мм",
+        "size": "1200*600*20мм 20 плит",
+        "unit": "шт",
+        "priceValue": 12300,
+        "currency": "UZS",
+        "image_file": "penoplex_komfort_20mm.jpg"
+      },
+      {
+        "id": "xps-12",
+        "name": "Клей-пена Пеноплекс Фастфикс ПРО 750 мл",
+        "size": "750 мл",
+        "unit": "шт",
+        "priceValue": 61000,
+        "currency": "UZS",
+        "image_file": "penoplex_fastfix.jpg"
+      }
+    ]
+  },
+  {
+    "category": "Folga maxsulotlari",
+    "items": [
+      {
+        "id": "foil-1",
+        "name": "Фольгоизоляция 2мм",
+        "size": "10 мм/50м",
+        "unit": "шт",
+        "priceValue": null,
+        "currency": "UZS",
+        "image_file": "foil-1.jpg"
+      },
+      {
+        "id": "foil-2",
+        "name": "Фольгоизоляция 3 мм",
+        "size": "2 мм/50м",
+        "unit": "шт",
+        "priceValue": null,
+        "currency": "UZS",
+        "image_file": "foil-2.jpg"
+      },
+      {
+        "id": "foil-3",
+        "name": "Фольгоизоляция 5 мм кубик",
+        "size": "3 мм/50м",
+        "unit": "шт",
+        "priceValue": null,
+        "currency": "UZS",
+        "image_file": "foil_5mm.jpg"
+      },
+      {
+        "id": "foil-4",
+        "name": "Фольгоизоляция 10 мм",
+        "size": "5 мм/50м",
+        "unit": "шт",
+        "priceValue": null,
+        "currency": "UZS",
+        "image_file": "foil-4.jpg"
+      },
+      {
+        "id": "foil-5",
+        "name": "Фольгоизоляция рулон 1,5мм зарез 50 м",
+        "size": "1,5 мм/50м",
+        "unit": "шт",
+        "priceValue": null,
+        "currency": "UZS",
+        "image_file": "foil-5.jpg"
+      },
+      {
+        "id": "foil-6",
+        "name": "Трубоизоляция с фольгой 20 мм",
+        "size": "20 мм/2м",
+        "unit": "шт",
+        "priceValue": 3000,
+        "currency": "UZS",
+        "image_file": "pipe_foil_20mm.jpg"
+      },
+      {
+        "id": "foil-7",
+        "name": "Трубоизоляция с фольгой 25 мм",
+        "size": "25 мм/2m",
+        "unit": "шт",
+        "priceValue": 3500,
+        "currency": "UZS",
+        "image_file": "pipe_foil_25mm.jpg"
+      },
+      {
+        "id": "foil-8",
+        "name": "Трубоизоляция с фольгой 32 мм",
+        "size": "32 мм/2м",
+        "unit": "шт",
+        "priceValue": 4000,
+        "currency": "UZS",
+        "image_file": "pipe_foil_32mm.jpg"
+      }
+    ]
+  },
+  {
+    "category": "Burchak va Steklo setkalar",
+    "items": [
+      {
+        "id": "mesh-1",
+        "name": "Бурчак сетка (2,5 м)",
+        "size": "2,5 м",
+        "unit": "шт",
+        "priceValue": 12000,
+        "currency": "UZS",
+        "image_file": "corner_mesh.jpg"
+      },
+      {
+        "id": "mesh-2",
+        "name": "Хитой стекло сетка 100 гр",
+        "size": "100 гр/50кв",
+        "unit": "шт",
+        "priceValue": 12,
+        "currency": "USD",
+        "image_file": "mesh-2.jpg"
+      },
+      {
+        "id": "mesh-3",
+        "name": "Хитой Стекло сетка 120 гр",
+        "size": "120 гр/50кв",
+        "unit": "шт",
+        "priceValue": 14,
+        "currency": "USD",
+        "image_file": "mesh-3.jpg"
+      },
+      {
+        "id": "mesh-4",
+        "name": "Хитой стекло сетка 140 гр",
+        "size": "140 гр/50кв",
+        "unit": "шт",
+        "priceValue": 16,
+        "currency": "USD",
+        "image_file": "mesh-4.jpg"
+      }
+    ]
+  },
+  {
+    "category": "Dekor plast maxsulotlari",
+    "items": [
+      {
+        "id": "decor-1",
+        "name": "Декор Royal 4 метр х 0.6 мм",
+        "size": "4 метр х 0.55 мм",
+        "unit": "м2",
+        "priceValue": 2,
+        "currency": "USD",
+        "image_file": "decor_royal_4m.jpg"
+      },
+      {
+        "id": "decor-2",
+        "name": "Декор Royal 3 метр х 0.6 мм",
+        "size": "3 метр х 0.55 мм",
+        "unit": "м2",
+        "priceValue": 2,
+        "currency": "USD",
+        "image_file": "decor_royal_3m.jpg"
+      },
+      {
+        "id": "decor-3",
+        "name": "Декор Ехспорт пласт 3 метр х 0.6 мм",
+        "size": "3 метр х 0.55 мм",
+        "unit": "м2",
+        "priceValue": 2,
+        "currency": "USD",
+        "image_file": "decor-3.jpg"
+      },
+      {
+        "id": "decor-4",
+        "name": "Декор Ехспорт пласт 4 метр х 0.6 мм",
+        "size": "4 метр х 0.55 мм",
+        "unit": "м2",
+        "priceValue": 2,
+        "currency": "USD",
+        "image_file": "decor-4.jpg"
+      }
+    ]
+  },
+  {
+    "category": "Oboylar",
+    "items": [
+      {
+        "id": "wallpaper-1",
+        "name": "3д Обой (Гиштлик)",
+        "size": "1*6м",
+        "unit": "1 кв",
+        "priceValue": 33000,
+        "currency": "UZS",
+        "image_file": "wallpaper-1.jpg"
+      },
+      {
+        "id": "wallpaper-2",
+        "name": "3д Обой (Гладкий)",
+        "size": "1*20м",
+        "unit": "1 кв",
+        "priceValue": 28000,
+        "currency": "UZS",
+        "image_file": "wallpaper-2.jpg"
+      },
+      {
+        "id": "wallpaper-3",
+        "name": "Бамбук обой",
+        "size": "1,20*3м",
+        "unit": "1 кв",
+        "priceValue": 5.5,
+        "currency": "USD",
+        "image_file": "wallpaper_bamboo.jpg"
+      },
+      {
+        "id": "wallpaper-4",
+        "name": "3д Мат Винчемикал",
+        "size": "1м*2м",
+        "unit": "1 кв",
+        "priceValue": 37000,
+        "currency": "UZS",
+        "image_file": "wallpaper-4.jpg"
+      },
+      {
+        "id": "wallpaper-5",
+        "name": "3д Мат Ичанқи",
+        "size": "1м*1,5 м",
+        "unit": "1 м",
+        "priceValue": 49500,
+        "currency": "UZS",
+        "image_file": "wallpaper-5.jpg"
+      }
+    ]
+  },
+  {
+    "category": "Panellar",
+    "items": [
+      {
+        "id": "panel-1",
+        "name": "3Д ПВХ панел",
+        "size": "2,80*1,22м",
+        "unit": "шт",
+        "priceValue": 42,
+        "currency": "USD",
+        "image_file": "panel_3d_pvc.jpg"
+      },
+      {
+        "id": "panel-2",
+        "name": "ПВХ панел 2,8",
+        "size": "2,8*1,22м",
+        "unit": "шт",
+        "priceValue": 12.5,
+        "currency": "USD",
+        "image_file": "panel_pvc_28.jpg"
+      },
+      {
+        "id": "panel-3",
+        "name": "ПВХ панел 2,44",
+        "size": "2,44*1,22м",
+        "unit": "шт",
+        "priceValue": 11.5,
+        "currency": "USD",
+        "image_file": "panel_pvc_244.jpg"
+      },
+      {
+        "id": "panel-4",
+        "name": "ПВХ Аксессуар",
+        "size": "--",
+        "unit": "шт",
+        "priceValue": 1.6,
+        "currency": "USD",
+        "image_file": "panel_pvc_acc.jpg"
+      }
+    ]
+  },
+  {
+    "category": "Kraska va emulsiya",
+    "items": [
+      {
+        "id": "paint-1",
+        "name": "NATIVA PREMIUM EMAL PF-115 - Uzun yog'li alkid asosli emal (oq) 3 kg",
+        "size": "3кг",
+        "unit": "шт",
+        "priceValue": 9.6,
+        "currency": "USD",
+        "image_file": "paint-1.jpg"
+      },
+      {
+        "id": "paint-2",
+        "name": "NATIVA CLASSIC EMAL PF-115 - Uzun yog'li alkid asosli emal (oq) 3 kg",
+        "size": "3кг",
+        "unit": "шт",
+        "priceValue": 8.7,
+        "currency": "USD",
+        "image_file": "paint-2.jpg"
+      },
+      {
+        "id": "paint-3",
+        "name": "NATIVA EMAL PF-266 - Uzun yog'li alkid asosli emal (sariq jigarrang) 3 kg",
+        "size": "3кг",
+        "unit": "шт",
+        "priceValue": 7.3,
+        "currency": "USD",
+        "image_file": "paint-3.jpg"
+      },
+      {
+        "id": "paint-4",
+        "name": "NATIVA EMAL PF-266 - Uzun yog'li alkid asosli emal (qizil-jigarrang) 3 kg",
+        "size": "3кг",
+        "unit": "шт",
+        "priceValue": 7.3,
+        "currency": "USD",
+        "image_file": "paint_nativa_pf266_red.jpg"
+      },
+      {
+        "id": "paint-5",
+        "name": "NATIVA ANTIKOR PF-020 - Uzun yog'li alkid asosli korroziyaga qarshi astar 4 kg",
+        "size": "4кг",
+        "unit": "шт",
+        "priceValue": 8.4,
+        "currency": "USD",
+        "image_file": "paint-5.jpg"
+      },
+      {
+        "id": "paint-6",
+        "name": "NATIVA VARNISH PF-283 - Uzun yog'li alkid asosli rangsiz lak 2,5 kg",
+        "size": "2.5кг",
+        "unit": "шт",
+        "priceValue": 7.2,
+        "currency": "USD",
+        "image_file": "paint-6.jpg"
+      },
+      {
+        "id": "paint-7",
+        "name": "NATIVA YACHT VARNISH - Alkido-uretan asosli yaxta laki 2,5 kg",
+        "size": "2.5кг",
+        "unit": "шт",
+        "priceValue": 8,
+        "currency": "USD",
+        "image_file": "paint-7.jpg"
+      },
+      {
+        "id": "paint-8",
+        "name": "NATIVA RAPID - Qisqa yog'li alkid asosli tez quriydigan emal (oq) 3 kg",
+        "size": "3кг",
+        "unit": "шт",
+        "priceValue": 11.4,
+        "currency": "USD",
+        "image_file": "paint_nativa_rapid.jpg"
+      },
+      {
+        "id": "paint-9",
+        "name": "NATIVA ANTIKOR RAPID - Qisqa yog'li alkid asosli korroziyaga qarshi astar 4 kg",
+        "size": "4кг",
+        "unit": "шт",
+        "priceValue": 11.4,
+        "currency": "USD",
+        "image_file": "paint_nativa_antikor_rapid.jpg"
+      },
+      {
+        "id": "paint-10",
+        "name": "NATIVA THINNER RAPID - Qisqa yog'li alkid asosli emal uchun suyultirgich 0,5 L",
+        "size": "0.5л",
+        "unit": "шт",
+        "priceValue": 1.3,
+        "currency": "USD",
+        "image_file": "paint_nativa_thinner.jpg"
+      },
+      {
+        "id": "paint-11",
+        "name": "NATIVA EMAL PF-115 - Uzun yog'li alkid asosli emal (kulrang) 3 kg",
+        "size": "3кг",
+        "unit": "шт",
+        "priceValue": 8.7,
+        "currency": "USD",
+        "image_file": "paint-11.jpg"
+      },
+      {
+        "id": "paint-12",
+        "name": "NATIVA TAVAN Краска акриловая для стен и потолков (ВД-АК) 5 кг",
+        "size": "5кг",
+        "unit": "шт",
+        "priceValue": 3.9,
+        "currency": "USD",
+        "image_file": "paint-12.jpg"
+      },
+      {
+        "id": "paint-13",
+        "name": "NATIVA TAVAN Краска акриловая для стен и потолков (ВД-АК) 10 кг",
+        "size": "10кг",
+        "unit": "шт",
+        "priceValue": 7.5,
+        "currency": "USD",
+        "image_file": "paint-13.jpg"
+      },
+      {
+        "id": "paint-14",
+        "name": "NATIVA TAVAN Краска акриловая для стен и потолков (ВД-АК) 20кг",
+        "size": "20кг",
+        "unit": "шт",
+        "priceValue": 14.6,
+        "currency": "USD",
+        "image_file": "paint-14.jpg"
+      },
+      {
+        "id": "paint-15",
+        "name": "CLASSIC Краска акриловая моющаяся работ (ВД-АК 5кг)",
+        "size": "5кг",
+        "unit": "шт",
+        "priceValue": 6.1,
+        "currency": "USD",
+        "image_file": "paint_classic_5kg.jpg"
+      },
+      {
+        "id": "paint-16",
+        "name": "CLASSIC Краска акриловая моющаяся работ (ВД-АК 10кг)",
+        "size": "10кг",
+        "unit": "шт",
+        "priceValue": 11.9,
+        "currency": "USD",
+        "image_file": "paint_classic_10kg.jpg"
+      },
+      {
+        "id": "paint-17",
+        "name": "CLASSIC Краска акриловая моющаяся работ (ВД-АК 20кг)",
+        "size": "20кг",
+        "unit": "шт",
+        "priceValue": 23.4,
+        "currency": "USD",
+        "image_file": "paint_classic_20kg.jpg"
+      }
+    ]
+  }
+]
