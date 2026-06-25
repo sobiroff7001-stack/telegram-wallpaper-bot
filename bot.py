@@ -72,18 +72,14 @@ def send_address(message):
     chat_id = message.chat.id
     user_states.pop(chat_id, None)
     
-    # Manzil matni va Yandex Xarita havolasi
-    address_text = (
-        f"{config.STORE_ADDRESS}\n\n"
-        f"🔗 [Yandex Xaritada ko'rish]({config.STORE_MAP_LINK})"
-    )
-    bot.send_message(chat_id, address_text, parse_mode="Markdown", disable_web_page_preview=False)
-    
-    # Geografik joylashuv (Location)
+    # Geografik joylashuv (Location) yuboramiz
     try:
         bot.send_location(chat_id, config.STORE_LATITUDE, config.STORE_LONGITUDE)
     except Exception as e:
         print(f"Lokatsiya yuborishda xatolik: {e}")
+        
+    # Manzil matnini tagida yuboramiz
+    bot.send_message(chat_id, config.STORE_ADDRESS, parse_mode="Markdown")
 
 @bot.message_handler(func=lambda msg: msg.text == "📞 Aloqa")
 def send_contact(message):
