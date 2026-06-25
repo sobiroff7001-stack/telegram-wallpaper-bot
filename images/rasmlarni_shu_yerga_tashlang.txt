@@ -1,0 +1,3 @@
+Mahsulot rasmlarini shu papkaga tashlang.
+Har bir mahsulot rasm fayli nomi products.js ichidagi "image" maydoni bilan bir xil bo'lishi kerak.
+Masalan: basaltium_facade.jpg
