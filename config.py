@@ -10,7 +10,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 # GitHub and Admin Config
 GITHUB_PAT = os.getenv("GITHUB_PAT")
 GITHUB_REPO = os.getenv("GITHUB_REPO")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "stroy_admin_99")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "bot9999")
 
 
 # Do'kon manzili haqida ma'lumot
