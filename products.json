@@ -24,6 +24,11 @@
   {
     "category": "Bazalt va Steklovatalar",
     "items": [
+      { "id": "basalt-wool-facad", "name": "BASALT WOOL FACAD 1200X600X50", "size": "1200x600x50", "unit": "5.04 m2", "priceValue": 52000, "currency": "UZS", "image_file": "basalt_wool_yellow.png" },
+      { "id": "basalt-wool-facad-std", "name": "BASALT WOOL FACAD STANDART 1200X600X50", "size": "1200x600x50", "unit": "3.6 m2", "priceValue": 62000, "currency": "UZS", "image_file": "basalt_wool_yellow.png" },
+      { "id": "basalt-wool-universal", "name": "BASALT WOOL UNIVERSAL 5.76m2 1200X600X50", "size": "1200x600x50", "unit": "5.76 m2", "priceValue": 32000, "currency": "UZS", "image_file": "basalt_wool_yellow.png" },
+      { "id": "basalt-wool-vent-pro", "name": "BASALT WOOL VENT-PRO 1200X600X50", "size": "1200x600x50", "unit": "5.76 m2", "priceValue": 40000, "currency": "UZS", "image_file": "basalt_wool_yellow.png" },
+      { "id": "basalt-wool-light", "name": "BASALT WOOL LIGHT 1200X600X50", "size": "1200x600x50", "unit": "5.76 m2", "priceValue": 30000, "currency": "UZS", "image_file": "basalt_wool_yellow.png" },
       { "id": "bazalt-40-50", "name": "Bazalt vata 40/50 ( 5.76 kv)", "priceValue": 28000, "currency": "UZS", "image_file": "basalt-1.jpg" },
       { "id": "bazalt-50-50", "name": "Bazalt vata 50/50 ( 5.76 kv)", "priceValue": 60000, "currency": "UZS", "image_file": "basalt-2.jpg" },
       { "id": "bazalt-80-50", "name": "Bazalt vata 80/50 ( 5.76 kv)", "priceValue": 40000, "currency": "UZS", "image_file": "basalt-3.jpg" },
@@ -84,9 +89,9 @@
     "items": [
       { "id": "pvx-panel-2.44", "name": "PVX panel 2.44 х 1,22 см(TEXTALIT)", "priceValue": 170000, "currency": "UZS", "image_file": "decor-3.jpg" },
       { "id": "pvx-panel-2.80", "name": "PVX panel 2.80  х 1,22 см(TEXTALIT)", "priceValue": 185000, "currency": "UZS", "image_file": "decor-4.jpg" },
-      { "id": "3d-oboy-glatkiy", "name": "Теплоизоляцонныйе Глаткий  3D обой koрея (Янги)", "priceValue": 38000, "currency": "UZS", "image_file": "wallpaper-1.jpg" },
-      { "id": "3d-oboy-korea", "name": "Теплоизоляцонныйе 3D обой корея", "priceValue": 38000, "currency": "UZS", "image_file": "wallpaper-2.jpg" },
-      { "id": "mat-3d-korea", "name": "Мат  3D корея", "priceValue": 38000, "currency": "UZS", "image_file": "wallpaper-4.jpg" },
+      { "id": "3d-oboy-glatkiy", "name": "Теплоизоляцонныйе Глаткий  3D oboy korea (Yangi)", "priceValue": 38000, "currency": "UZS", "image_file": "wallpaper-1.jpg" },
+      { "id": "3d-oboy-korea", "name": "Теплоизоляцонныйе 3D oboy korea", "priceValue": 38000, "currency": "UZS", "image_file": "wallpaper-2.jpg" },
+      { "id": "mat-3d-korea", "name": "Mat  3D korea", "priceValue": 38000, "currency": "UZS", "image_file": "wallpaper-4.jpg" },
       { "id": "ichanki-oboy-foil", "name": "ICHANKI oboy falgalik", "priceValue": 36000, "currency": "UZS", "image_file": "wallpaper-5.jpg" },
       { "id": "ichanki-oboy-no-foil", "name": "ICHANKI oboy falgasiz", "priceValue": 36000, "currency": "UZS", "image_file": "wallpaper-1.jpg" },
       { "id": "decor-plast-4", "name": "Décor plast 4 м", "priceValue": 30000, "currency": "UZS", "image_file": "decor-3.jpg" },
