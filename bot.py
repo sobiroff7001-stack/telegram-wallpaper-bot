@@ -92,70 +92,179 @@ def send_contact(message):
     bot.send_message(chat_id, config.STORE_CONTACTS, parse_mode="Markdown")
 
 # --- Katalog handlerlari ---
+
+import json
+
+def load_products():
+    try:
+        file_path = os.path.join(os.path.dirname(__file__), 'products.json')
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"Error loading products: {e}")
+    return []
+
+def format_price(value, currency="UZS"):
+    if value is None:
+        return "Bog'laning"
+    formatted = f"{value:,}".replace(",", " ")
+    if currency == "USD":
+        return f"${formatted}"
+    return f"{formatted} so'm"
+
 @bot.message_handler(func=lambda msg: msg.text == "📂 Katalog")
 def send_catalog(message):
     chat_id = message.chat.id
     user_states.pop(chat_id, None)
     
+    products_data = load_products()
+    if not products_data:
+        bot.send_message(chat_id, "⚠️ Hozircha katalog bo'sh yoki yuklashda xatolik yuz berdi.")
+        return
+        
     markup = types.InlineKeyboardMarkup(row_width=1)
-    for item in config.CATALOG:
-        btn = types.InlineKeyboardButton(text=f"{item['name']} - {item['price']}", callback_data=f"catalog_detail_{item['id']}")
+    for index, cat in enumerate(products_data):
+        btn = types.InlineKeyboardButton(text=cat['category'], callback_data=f"cat_select_{index}")
         markup.add(btn)
         
     bot.send_message(
         chat_id, 
-        "📂 **Mavjud aboylarimiz katalogi:**\n"
-        "Batafsil ma'lumot va rasmini ko'rish uchun aboy nomini tanlang:",
+        "📂 **Katalog bo'limlari:**\n\nIltimos, mahsulot toifasini tanlang:",
         parse_mode="Markdown",
         reply_markup=markup
     )
 
-# Katalogdan biror aboy tanlangandagi callback
-@bot.callback_query_handler(func=lambda call: call.data.startswith("catalog_detail_"))
-def handle_catalog_detail(call):
+@bot.callback_query_handler(func=lambda call: call.data.startswith('cat_select_') or call.data == 'cat_back_to_list')
+def handle_cat_selection(call):
     chat_id = call.message.chat.id
-    item_id = int(call.data.split("_")[-1])
+    message_id = call.message.message_id
+    bot.answer_callback_query(call.id)
     
-    # Mahsulotni topish
+    products_data = load_products()
+    
+    if call.data == 'cat_back_to_list':
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        for index, cat in enumerate(products_data):
+            btn = types.InlineKeyboardButton(text=cat['category'], callback_data=f"cat_select_{index}")
+            markup.add(btn)
+            
+        try:
+            bot.delete_message(chat_id, message_id)
+        except Exception:
+            pass
+            
+        bot.send_message(
+            chat_id=chat_id,
+            text="📂 **Katalog bo'limlari:**\n\nIltimos, mahsulot toifasini tanlang:",
+            parse_mode="Markdown",
+            reply_markup=markup
+        )
+        return
+
+    cat_index = int(call.data.split('_')[2])
+    if cat_index >= len(products_data):
+        return
+        
+    cat = products_data[cat_index]
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    for item in cat['items']:
+        btn = types.InlineKeyboardButton(
+            text=f"{item['name']} - {format_price(item['priceValue'], item.get('currency', 'UZS'))}",
+            callback_data=f"prod_select_{cat_index}_{item['id']}"
+        )
+        markup.add(btn)
+    back_btn = types.InlineKeyboardButton(text="⬅️ Orqaga", callback_data="cat_back_to_list")
+    markup.add(back_btn)
+    
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=message_id,
+        text=f"📂 **{cat['category']}** bo'limidagi mahsulotlar:\n\nBatafsil ma'lumot olish uchun mahsulotni tanlang:",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('prod_select_') or call.data.startswith('prod_back_to_cat_'))
+def handle_product_detail(call):
+    chat_id = call.message.chat.id
+    message_id = call.message.message_id
+    bot.answer_callback_query(call.id)
+    
+    products_data = load_products()
+    
+    if call.data.startswith('prod_back_to_cat_'):
+        cat_index = int(call.data.split('_')[4])
+        if cat_index >= len(products_data):
+            return
+        cat = products_data[cat_index]
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        for item in cat['items']:
+            btn = types.InlineKeyboardButton(
+                text=f"{item['name']} - {format_price(item['priceValue'], item.get('currency', 'UZS'))}",
+                callback_data=f"prod_select_{cat_index}_{item['id']}"
+            )
+            markup.add(btn)
+        back_btn = types.InlineKeyboardButton(text="⬅️ Orqaga", callback_data="cat_back_to_list")
+        markup.add(back_btn)
+        
+        try:
+            bot.delete_message(chat_id, message_id)
+        except Exception:
+            pass
+            
+        bot.send_message(
+            chat_id=chat_id,
+            text=f"📂 **{cat['category']}** bo'limidagi mahsulotlar:\n\nBatafsil ma'lumot olish uchun mahsulotni tanlang:",
+            parse_mode="Markdown",
+            reply_markup=markup
+        )
+        return
+
+    parts = call.data.split('_')
+    cat_index = int(parts[2])
+    item_id = '_'.join(parts[3:])
+    
+    if cat_index >= len(products_data):
+        return
+    cat = products_data[cat_index]
+    
     selected_item = None
-    for item in config.CATALOG:
+    for item in cat['items']:
         if item['id'] == item_id:
             selected_item = item
             break
             
     if not selected_item:
-        bot.answer_callback_query(call.id, "Mahsulot topilmadi.")
         return
-        
-    bot.answer_callback_query(call.id)
-    
-    # Batafsil ma'lumot matni
+
     detail_text = (
         f"🌟 **{selected_item['name']}**\n\n"
-        f"💰 **Narxi:** {selected_item['price']} (1 rulon)\n"
-        f"📐 **Rulon o'lchami:** {selected_item['roll_size']}\n"
-        f"📝 **Tavsif:** {selected_item['description']}\n"
+        f"💰 **Narxi:** {format_price(selected_item['priceValue'], selected_item.get('currency', 'UZS'))}\n"
     )
-    
-    # Rulon eni qiymatini ajratib olish (kalkulyator uchun)
-    width_val = 1.06 if "1.06m" in selected_item['roll_size'] else 0.53
-    
-    # Inline keyboard yaratish
+    if 'size' in selected_item:
+        detail_text += f"📐 **O'lchami:** {selected_item['size']}\n"
+    if 'unit' in selected_item:
+        detail_text += f"📦 **O'lchov birligi:** {selected_item['unit']}\n"
+        
     markup = types.InlineKeyboardMarkup()
-    btn_calc_this = types.InlineKeyboardButton(
-        text="🧮 Ushbu aboydan xonaga hisoblash", 
-        callback_data=f"calc_prefilled_{width_val}"
-    )
-    markup.add(btn_calc_this)
+    back_btn = types.InlineKeyboardButton(text="⬅️ Orqaga", callback_data=f"prod_back_to_cat_{cat_index}")
+    markup.add(back_btn)
     
-    # Rasm bilan birga yuborish
-    image_path = os.path.join(IMAGES_DIR, selected_item['image_filename'])
-    if os.path.exists(image_path):
+    try:
+        bot.delete_message(chat_id, message_id)
+    except Exception:
+        pass
+        
+    image_file = selected_item.get('image_file')
+    image_path = os.path.join(IMAGES_DIR, image_file) if image_file else None
+    
+    if image_path and os.path.exists(image_path):
         with open(image_path, 'rb') as photo:
             bot.send_photo(chat_id, photo, caption=detail_text, parse_mode="Markdown", reply_markup=markup)
     else:
-        # Rasm topilmasa oddiy matn yuboriladi
         bot.send_message(chat_id, detail_text, parse_mode="Markdown", reply_markup=markup)
+
 
 # --- Kalkulyator Bosqichlari (State Machine) ---
 
