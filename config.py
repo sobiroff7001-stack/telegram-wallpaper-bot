@@ -11,7 +11,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 GITHUB_PAT = os.getenv("GITHUB_PAT")
 GITHUB_REPO = os.getenv("GITHUB_REPO")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "bot9999")
-WEB_APP_URL = os.getenv("WEB_APP_URL", "https://sobiroff7001-stack.github.io/telegram-wallpaper-bot/mini-app/")
+
 
 
 # Do'kon manzili haqida ma'lumot
