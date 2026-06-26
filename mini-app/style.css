@@ -1,0 +1,486 @@
+/* Design System & Variables */
+:root {
+    --bg-color: #0f172a;
+    --surface-color: #1e293b;
+    --surface-hover: #293548;
+    --border-color: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent: #6366f1;
+    --accent-hover: #4f46e5;
+    --accent-light: rgba(99, 102, 241, 0.15);
+    --success: #10b981;
+    --success-hover: #059669;
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    
+    --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Reset & Global styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* App Layout */
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+}
+
+/* Header */
+.app-header {
+    padding: 16px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0) 100%);
+    border-bottom: 1px solid rgba(51, 65, 85, 0.2);
+}
+
+.app-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.app-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Canvas / Room Viewport */
+.canvas-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background-color: rgba(15, 23, 42, 0.3);
+    min-height: 250px;
+}
+
+#room-canvas {
+    width: 100%;
+    height: 100%;
+    max-height: 320px;
+    aspect-ratio: 4 / 3;
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+    background-color: #e2e8f0; /* Default empty wall color */
+}
+
+.room-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#room-wall {
+    height: 75%;
+    background-color: #f1f5f9;
+    background-repeat: repeat;
+    background-size: 80px auto;
+    transition: background 0.3s ease;
+    pointer-events: auto;
+}
+
+#room-floor {
+    top: 75%;
+    height: 25%;
+    background-color: #cbd5e1;
+    background-repeat: repeat;
+    background-size: 60px auto;
+    border-top: 6px solid #475569; /* Plintus / Baseboard */
+    transition: background 0.3s ease;
+}
+
+#furniture-layer {
+    pointer-events: auto;
+}
+
+/* Draggable Furniture Items */
+.furniture-item {
+    position: absolute;
+    cursor: move;
+    user-select: none;
+    transform-origin: center center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.furniture-item svg, .furniture-item img {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+}
+
+/* Selected state outline & handles */
+.furniture-item.selected {
+    outline: 2px dashed var(--accent);
+    outline-offset: 4px;
+}
+
+.furniture-item .item-controls {
+    display: none;
+}
+
+.furniture-item.selected .item-controls {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.control-btn {
+    position: absolute;
+    pointer-events: auto;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+}
+
+.control-btn:hover {
+    transform: scale(1.1);
+}
+
+.control-btn.delete {
+    top: -16px;
+    left: -16px;
+    background-color: var(--danger);
+}
+
+.control-btn.flip {
+    top: -16px;
+    right: -16px;
+    background-color: var(--accent);
+}
+
+.control-btn.rotate {
+    bottom: -16px;
+    right: -16px;
+    background-color: var(--success);
+}
+
+/* Control Panel */
+.control-panel {
+    background-color: var(--surface-color);
+    border-top: 1px solid var(--border-color);
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Tabs Bar */
+.tabs-bar {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    padding: 4px 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.tabs-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 6px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    font-family: var(--font-main);
+}
+
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+/* Tab Contents */
+.tab-contents {
+    padding: 16px;
+    height: 180px;
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Dimension Inputs */
+.input-group {
+    margin-bottom: 12px;
+}
+
+.input-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: var(--text-secondary);
+}
+
+.input-header span:last-child {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border-color);
+    outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    transition: background 0.15s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    background: var(--accent-hover);
+}
+
+.calculator-info {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background-color: rgba(99, 102, 241, 0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+}
+
+.calc-text {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* Category Selector (Horizontal Scroll) */
+.category-selector {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    scrollbar-width: none;
+}
+
+.category-selector::-webkit-scrollbar {
+    display: none;
+}
+
+.cat-btn {
+    padding: 6px 12px;
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    font-family: var(--font-main);
+}
+
+.cat-btn.active {
+    background-color: var(--accent-light);
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Grid of Items */
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.grid-item {
+    background-color: rgba(15, 23, 42, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.grid-item:hover {
+    border-color: var(--accent);
+    background-color: var(--surface-hover);
+}
+
+.grid-item.selected {
+    border-color: var(--accent);
+    background-color: var(--accent-light);
+}
+
+.grid-item-img {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-bottom: 6px;
+    background-color: rgba(255,255,255,0.05);
+}
+
+.grid-item-name {
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 2px;
+}
+
+.grid-item-price {
+    font-size: 10px;
+    color: var(--success);
+    font-weight: 600;
+}
+
+/* Summary / Action Bar */
+.summary-bar {
+    background-color: #111827;
+    border-top: 1px solid var(--border-color);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.calculation-summary {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-label {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.summary-value {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.summary-value.highlight {
+    color: var(--accent);
+}
+
+#summary-price {
+    color: var(--success);
+}
+
+.submit-btn {
+    padding: 12px 24px;
+    background-color: var(--success);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-main);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background-color: var(--success-hover);
+    transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-height: 600px) {
+    .app-header { padding: 8px; }
+    .app-title { font-size: 16px; }
+    .canvas-container { padding: 8px; min-height: 180px; }
+    .tab-contents { height: 130px; padding: 8px 16px; }
+    .tabs-bar .tab-btn { padding: 8px 4px; }
+}
