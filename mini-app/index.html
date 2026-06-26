@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Orzudagi Xona - Room Planner</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Outfit for premium modern feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Yuqori qism (Header) -->
+        <header class="app-header">
+            <h1 class="app-title">Orzudagi Xona 🏠</h1>
+            <p class="app-subtitle">Xonangizni bezating va aboylarni hisoblang</p>
+        </header>
+
+        <!-- Xona ko'rinishi (Visual Canvas) -->
+        <main class="canvas-container">
+            <div id="room-canvas">
+                <!-- Devor qismi -->
+                <div id="room-wall" class="room-layer"></div>
+                <!-- Pol qismi -->
+                <div id="room-floor" class="room-layer"></div>
+                <!-- Deraza va Eshik kabi statsionar elementlar uchun qatlam -->
+                <div id="static-layer" class="room-layer"></div>
+                <!-- Mebellar qatlami -->
+                <div id="furniture-layer" class="room-layer"></div>
+            </div>
+        </main>
+
+        <!-- Boshqaruv paneli (Control Panel) -->
+        <section class="control-panel">
+            <!-- Tablar menyusi -->
+            <div class="tabs-bar">
+                <button class="tab-btn active" data-tab="dimensions">📐 O'lcham</button>
+                <button class="tab-btn" data-tab="wallpapers">🖼 Aboy</button>
+                <button class="tab-btn" data-tab="furniture">🛋 Mebel</button>
+                <button class="tab-btn" data-tab="floors">🪵 Pol</button>
+            </div>
+
+            <!-- Tablar tarkibi -->
+            <div class="tab-contents">
+                <!-- 1. O'lchamlar tab -->
+                <div class="tab-content active" id="tab-dimensions">
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span>Hisoblash turi:</span>
+                        </div>
+                        <div class="toggle-group" style="display: flex; gap: 10px; margin-bottom: 12px;">
+                            <label class="toggle-label" style="flex: 1; text-align: center; background: var(--border-color); padding: 8px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 500; border: 1px dashed transparent;">
+                                <input type="radio" name="calc-mode" value="room" checked style="display: none;">
+                                🏢 Butun xona (4 devor)
+                            </label>
+                            <label class="toggle-label" style="flex: 1; text-align: center; background: rgba(255,255,255,0.05); padding: 8px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 500; border: 1px dashed transparent;">
+                                <input type="radio" name="calc-mode" value="wall" style="display: none;">
+                                🧱 Faqat 1 ta devor
+                            </label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span>Xona kengligi (metrda):</span>
+                            <span id="val-width">4.0 m</span>
+                        </div>
+                        <input type="range" id="input-width" min="2.0" max="8.0" step="0.1" value="4.0" class="slider">
+                    </div>
+                    <div class="input-group" id="group-length">
+                        <div class="input-header">
+                            <span>Xona uzunligi (metrda):</span>
+                            <span id="val-length">4.0 m</span>
+                        </div>
+                        <input type="range" id="input-length" min="2.0" max="8.0" step="0.1" value="4.0" class="slider">
+                    </div>
+                    <div class="input-group">
+                        <div class="input-header">
+                            <span>Xona balandligi (metrda):</span>
+                            <span id="val-height">2.8 m</span>
+                        </div>
+                        <input type="range" id="input-height" min="2.2" max="4.0" step="0.1" value="2.8" class="slider">
+                    </div>
+                    <div class="calculator-info">
+                        <p class="calc-text">ℹ️ Standart rulon o'lchami: <strong>1.06m x 10m</strong>. Agar aboy naqshli bo'lsa, rulon soni ko'payishi mumkin.</p>
+                    </div>
+                </div>
+
+                <!-- 2. Aboylar tab -->
+                <div class="tab-content" id="tab-wallpapers">
+                    <div class="category-selector" id="wallpaper-categories">
+                        <!-- Kategoriyalar JS orqali qo'shiladi -->
+                    </div>
+                    <div class="items-grid" id="wallpaper-items">
+                        <!-- Mahsulotlar JS orqali qo'shiladi -->
+                    </div>
+                </div>
+
+                <!-- 3. Mebellar tab -->
+                <div class="tab-content" id="tab-furniture">
+                    <div class="items-grid" id="furniture-items">
+                        <!-- Mebellar JS orqali qo'shiladi -->
+                    </div>
+                </div>
+
+                <!-- 4. Pol tab -->
+                <div class="tab-content" id="tab-floors">
+                    <div class="items-grid" id="floor-items">
+                        <!-- Pol turlari JS orqali qo'shiladi -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Natija va Buyurtma bar (Summary Bar) -->
+        <footer class="summary-bar">
+            <div class="calculation-summary">
+                <div class="summary-item">
+                    <span class="summary-label">Yuzasi:</span>
+                    <strong class="summary-value" id="summary-area">11.2 m²</strong>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Rulon:</span>
+                    <strong class="summary-value highlight" id="summary-rolls">3 ta</strong>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Jami:</span>
+                    <strong class="summary-value" id="summary-price">0 UZS</strong>
+                </div>
+            </div>
+            <button id="btn-submit" class="submit-btn" disabled>Buyurtma berish 🛒</button>
+        </footer>
+    </div>
+
+    <!-- Script ulanishi -->
+    <script src="app.js"></script>
+</body>
+</html>
