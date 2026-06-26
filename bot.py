@@ -234,11 +234,14 @@ IMAGES_DIR = os.path.join(os.path.dirname(__file__), "images")
 # --- Tugmalar (Reply Keyboard) ---
 def get_main_keyboard():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    btn_game = types.KeyboardButton("🎮 Orzudagi xona (O'yin)", web_app=types.WebAppInfo(url=config.WEB_APP_URL))
     btn_calc = types.KeyboardButton("🧮 Aboy hisoblash")
     btn_catalog = types.KeyboardButton("📂 Katalog")
     btn_address = types.KeyboardButton("📍 Manzil")
     btn_contact = types.KeyboardButton("📞 Aloqa")
-    markup.add(btn_calc, btn_catalog, btn_address, btn_contact)
+    markup.add(btn_game)
+    markup.add(btn_calc, btn_catalog)
+    markup.add(btn_address, btn_contact)
     return markup
 
 # --- Start buyrug'i ---
@@ -971,6 +974,74 @@ def handle_height_input(message):
     
     bot.send_message(chat_id, result_text, parse_mode="Markdown", reply_markup=get_main_keyboard())
     user_states.pop(chat_id, None)
+
+# --- Web App ma'lumotlarini qabul qilish ---
+@bot.message_handler(content_types=['web_app_data'])
+def handle_web_app_data(message):
+    chat_id = message.chat.id
+    try:
+        data = json.loads(message.web_app_data.data)
+        
+        if data.get('action') == 'buy_room':
+            room = data.get('room', {})
+            product = data.get('product', {})
+            furniture = data.get('furniture', 'Mebel joylashtirilmagan')
+            floor = data.get('floor', 'Standart pol')
+            
+            # Formatting numbers safely
+            price_val = product.get('price', 0)
+            total_price_val = product.get('totalPrice', 0)
+            
+            # Chek (receipt) matnini shakllantiramiz
+            receipt_text = (
+                "🎉 **Sizning Xona Dizayningiz va Buyurtmangiz Qabul Qilindi!**\n\n"
+                f"📐 **Xona o'lchamlari:**\n"
+                f"   • Turi: {room.get('mode')}\n"
+                f"   • Eni: {room.get('width')} m\n"
+            )
+            if room.get('length', 0) > 0:
+                receipt_text += f"   • Uzunligi: {room.get('length')} m\n"
+            receipt_text += (
+                f"   • Balandligi: {room.get('height')} m\n"
+                f"   • Devorlar yuzasi: {room.get('area'):.2f} kv.m\n\n"
+                f"🖼 **Tanlangan aboy:**\n"
+                f"   • Nomi: {product.get('name')}\n"
+                f"   • Rulon narxi: {price_val:,} so'm\n"
+                f"   • Kerakli rulonlar soni: **{product.get('rolls')} ta**\n\n"
+                f"🪵 **Pol turi:** {floor}\n"
+                f"🛋 **Mebellar:** {furniture}\n\n"
+                f"💰 **Jami aboylar narxi:** **{total_price_val:,} so'm**\n\n"
+                "📞 Menejerimiz tez orada siz bilan bog'lanib, buyurtmani tasdiqlaydi. "
+                "Do'konimizdan foydalanganingiz uchun rahmat! 😊"
+            ).replace(",", " ")
+            
+            # Foydalanuvchiga yuborish
+            bot.send_message(chat_id, receipt_text, parse_mode="Markdown", reply_markup=get_main_keyboard())
+            
+            # Adminlarga ham buyurtma haqida xabar berish
+            admin_msg = (
+                "🔔 **Yangi buyurtma (Orzudagi xona o'yinidan):**\n\n"
+                f"👤 Mijoz: {message.from_user.first_name} (@{message.from_user.username or 'yoq'})\n"
+                f"🆔 Chat ID: `{chat_id}`\n\n"
+                f"📐 Xona: {room.get('width')}x{room.get('length') or 0}x{room.get('height')} m ({room.get('area'):.2f} kv.m)\n"
+                f"🖼 Aboy: {product.get('name')} ({product.get('rolls')} ta)\n"
+                f"🛋 Mebellar: {furniture}\n"
+                f"💰 Jami: **{total_price_val:,} so'm**"
+            ).replace(",", " ")
+            
+            # Adminlarga yuborish logikasi
+            admin_ids_str = os.getenv("ADMIN_IDS", "")
+            if admin_ids_str:
+                for admin_id in admin_ids_str.split(","):
+                    if admin_id.strip():
+                        try:
+                            bot.send_message(int(admin_id.strip()), admin_msg, parse_mode="Markdown")
+                        except Exception as e:
+                            print(f"Adminga xabar yuborishda xato: {e}")
+                            
+    except Exception as e:
+        print(f"Web App ma'lumotlarini o'qishda xatolik: {e}")
+        bot.send_message(chat_id, "⚠️ Buyurtmani qayta ishlashda xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.", reply_markup=get_main_keyboard())
 
 # --- Noto'g'ri kiritilgan matnlarni qayta ishlash ---
 @bot.message_handler(func=lambda msg: True)
