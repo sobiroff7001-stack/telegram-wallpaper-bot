@@ -965,7 +965,7 @@ def start_calculator(message):
     user_states[chat_id] = {'state': 'SELECT_PRICE'}
     bot.send_message(
         chat_id, 
-        "🧮 **Aboy hisoblash kalkulyatori**\n\n💵 Iltimos, aboy narxini (yoki ish haqini) tanlang:",
+        "🧮 **Aboy hisoblash kalkulyatori**\n\n💵 Iltimos, aboy narxini tanlang:",
         parse_mode="Markdown",
         reply_markup=get_price_keyboard()
     )
