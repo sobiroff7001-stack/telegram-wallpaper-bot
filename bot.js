@@ -17,12 +17,54 @@ if (!BOT_TOKEN) {
 // Foydalanuvchilar holati (State machine)
 const userStates = {};
 
-// Asosiy tugmalar (Reply Keyboard)
+const SETTINGS_FILE = path.join(__dirname, 'settings.json');
+
+function loadSettings() {
+    if (!fs.existsSync(SETTINGS_FILE)) {
+        const defaultSettings = {
+            store_address: config.STORE_ADDRESS,
+            store_latitude: config.STORE_LATITUDE,
+            store_longitude: config.STORE_LONGITUDE,
+            store_contacts: config.STORE_CONTACTS,
+            calculator_prices: [22000, 30000, 35000],
+            custom_buttons: []
+        };
+        try {
+            fs.writeFileSync(SETTINGS_FILE, JSON.stringify(defaultSettings, null, 2), 'utf8');
+        } catch (e) {
+            console.error("Error creating default settings:", e);
+        }
+    }
+    
+    try {
+        const content = fs.readFileSync(SETTINGS_FILE, 'utf8');
+        return JSON.parse(content);
+    } catch (e) {
+        console.error("Error reading settings.json:", e);
+        return {};
+    }
+}
+
+// Asosiy tugmalar (Reply Keyboard) - Dynamic via Javascript Getter
 const mainKeyboard = {
-    keyboard: [
-        [{ text: "🧮 Xonani hisoblash" }, { text: "📂 Katalog" }],
-        [{ text: "📍 Manzil" }, { text: "📞 Aloqa" }]
-    ],
+    get keyboard() {
+        const settings = loadSettings();
+        const customButtons = settings.custom_buttons || [];
+        const kb = [
+            [{ text: "🧮 Xonani hisoblash" }, { text: "📂 Katalog" }],
+            [{ text: "📍 Manzil" }, { text: "📞 Aloqa" }]
+        ];
+        
+        for (let i = 0; i < customButtons.length; i += 2) {
+            const row = [];
+            row.push({ text: customButtons[i].name });
+            if (i + 1 < customButtons.length) {
+                row.push({ text: customButtons[i + 1].name });
+            }
+            kb.push(row);
+        }
+        return kb;
+    },
     resize_keyboard: true
 };
 
@@ -76,16 +118,17 @@ async function sendPhoto(chatId, filePath, caption, replyMarkup) {
 // Manzil tugmasi uchun
 async function handleAddress(chatId) {
     delete userStates[chatId];
+    const settings = loadSettings();
     // Kordinatani yuborish
     await api('sendLocation', {
         chat_id: chatId,
-        latitude: config.STORE_LATITUDE,
-        longitude: config.STORE_LONGITUDE
+        latitude: settings.store_latitude || config.STORE_LATITUDE,
+        longitude: settings.store_longitude || config.STORE_LONGITUDE
     });
     // Manzil matnini tagida yuborish
     await api('sendMessage', {
         chat_id: chatId,
-        text: config.STORE_ADDRESS,
+        text: settings.store_address || config.STORE_ADDRESS,
         parse_mode: 'Markdown'
     });
 }
@@ -93,9 +136,10 @@ async function handleAddress(chatId) {
 // Aloqa tugmasi uchun
 async function handleContact(chatId) {
     delete userStates[chatId];
+    const settings = loadSettings();
     await api('sendMessage', {
         chat_id: chatId,
-        text: config.STORE_CONTACTS,
+        text: settings.store_contacts || config.STORE_CONTACTS,
         parse_mode: 'Markdown',
         reply_markup: mainKeyboard
     });
@@ -241,6 +285,21 @@ async function handleMessage(message) {
     const chatId = message.chat.id;
     const text = (message.text || '').trim();
     
+    // Check custom dynamic buttons first
+    const settings = loadSettings();
+    const customButtons = settings.custom_buttons || [];
+    const matchedBtn = customButtons.find(b => b.name === text);
+    if (matchedBtn) {
+        delete userStates[chatId];
+        await api('sendMessage', {
+            chat_id: chatId,
+            text: matchedBtn.reply_text,
+            parse_mode: 'Markdown',
+            reply_markup: mainKeyboard
+        });
+        return;
+    }
+    
     // Avtomatik o'lchamlarni matndan aniqlab hisoblash
     const parsedDim = parseAndCalculate(text);
     if (parsedDim) {
@@ -303,12 +362,12 @@ async function handleMessage(message) {
     
     if (text === '🧮 Xonani hisoblash' || text === '🧮 Aboy hisoblash') {
         userStates[chatId] = { state: 'SELECT_PRICE' };
+        const settings = loadSettings();
+        const prices = settings.calculator_prices || [22000, 30000, 35000];
         const inlineKeyboard = {
-            inline_keyboard: [
-                [{ text: "22 000 so'm", callback_data: "price_22000" }],
-                [{ text: "30 000 so'm", callback_data: "price_30000" }],
-                [{ text: "35 000 so'm", callback_data: "price_35000" }]
-            ]
+            inline_keyboard: prices.map(p => [
+                { text: `${p.toLocaleString('uz-UZ')} so'm`, callback_data: `price_${p}` }
+            ])
         };
         await api('sendMessage', {
             chat_id: chatId,
