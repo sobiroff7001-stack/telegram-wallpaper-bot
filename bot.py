@@ -1,4 +1,4 @@
-import os
+﻿import os
 import telebot
 from telebot import types
 import requests
@@ -1359,39 +1359,6 @@ def handle_custom_buttons(message):
             bot.send_message(chat_id, btn["reply_text"], parse_mode="Markdown")
             return
 
-# --- Noto'g'ri kiritilgan matnlarni qayta ishlash ---
-@bot.message_handler(func=lambda msg: True)
-def handle_unknown_messages(message):
-    chat_id = message.chat.id
-    if chat_id in user_states:
-        state = user_states[chat_id]['state']
-        if state == 'SELECT_PRICE':
-            bot.reply_to(message, "⚠️ Iltimos, yuqoridagi tugmalardan birini bosib aboy narxini tanlang.")
-        elif state == 'INPUT_WIDTH':
-            bot.reply_to(message, "⚠️ Xona kengligini (enini) son bilan kiriting (masalan: 4):")
-        elif state == 'INPUT_LENGTH':
-            bot.reply_to(message, "⚠️ Xona uzunligini son bilan kiriting (masalan: 5):")
-        elif state == 'INPUT_HEIGHT':
-            bot.reply_to(message, "⚠️ Xona balandligini son bilan kiriting (masalan: 2.7):")
-        elif state.startswith('ADMIN_'):
-            bot.reply_to(message, "⚠️ Kiritishda xatolik. Iltimos, ko'rsatmaga amal qiling yoki orqaga qaytish uchun /admin_exit yuboring.")
-        else:
-            bot.send_message(chat_id, "Iltimos, o'lchamlarni to'g'ri kiriting.", reply_markup=get_main_keyboard())
-    else:
-        if is_admin(chat_id):
-            bot.send_message(
-                chat_id, 
-                "Iltimos, quyidagi admin panel tugmalaridan birini tanlang:", 
-                reply_markup=get_admin_keyboard()
-            )
-        else:
-            bot.send_message(
-                chat_id, 
-                "Iltimos, quyidagi menyu tugmalaridan birini tanlang:", 
-                reply_markup=get_main_keyboard()
-            )
-
-
 # --- MAT HISOBLASH ---
 
 def get_mat_price_keyboard():
@@ -1478,13 +1445,42 @@ def handle_mat_length(message):
     user_states.pop(chat_id, None)
 
 
+# --- Noto'g'ri kiritilgan matnlarni qayta ishlash ---
+@bot.message_handler(func=lambda msg: True)
+def handle_unknown_messages(message):
+    chat_id = message.chat.id
+    if chat_id in user_states:
+        state = user_states[chat_id]['state']
+        if state == 'SELECT_PRICE':
+            bot.reply_to(message, "⚠️ Iltimos, yuqoridagi tugmalardan birini bosib aboy narxini tanlang.")
+        elif state == 'INPUT_WIDTH':
+            bot.reply_to(message, "⚠️ Xona kengligini (enini) son bilan kiriting (masalan: 4):")
+        elif state == 'INPUT_LENGTH':
+            bot.reply_to(message, "⚠️ Xona uzunligini son bilan kiriting (masalan: 5):")
+        elif state == 'INPUT_HEIGHT':
+            bot.reply_to(message, "⚠️ Xona balandligini son bilan kiriting (masalan: 2.7):")
+        elif state.startswith('ADMIN_'):
+            bot.reply_to(message, "⚠️ Kiritishda xatolik. Iltimos, ko'rsatmaga amal qiling yoki orqaga qaytish uchun /admin_exit yuboring.")
+        else:
+            bot.send_message(chat_id, "Iltimos, o'lchamlarni to'g'ri kiriting.", reply_markup=get_main_keyboard())
+    else:
+        if is_admin(chat_id):
+            bot.send_message(
+                chat_id, 
+                "Iltimos, quyidagi admin panel tugmalaridan birini tanlang:", 
+                reply_markup=get_admin_keyboard()
+            )
+        else:
+            bot.send_message(
+                chat_id, 
+                "Iltimos, quyidagi menyu tugmalaridan birini tanlang:", 
+                reply_markup=get_main_keyboard()
+            )
+
 import keep_alive
 
 # Botni uzluksiz ishlash rejimida ishga tushirish
 if __name__ == '__main__':
     print("Bot muvaffaqiyatli ishga tushdi...")
-    # Cloud serverlarda doimiy ishlashi uchun veb-serverni ishga tushiramiz
     keep_alive.keep_alive()
-    # Cheksiz ishlashi uchun polling yoqiladi
     bot.infinity_polling()
-
