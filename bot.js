@@ -51,8 +51,8 @@ const mainKeyboard = {
         const settings = loadSettings();
         const customButtons = settings.custom_buttons || [];
         const kb = [
-            [{ text: "🧮 Xonani hisoblash" }, { text: "📂 Katalog" }],
-            [{ text: "📍 Manzil" }, { text: "📞 Aloqa" }]
+            [{ text: "🧮 Xonani hisoblash" }, { text: "🏠 Mat hisoblash" }],
+            [{ text: "📂 Katalog" }, { text: "📍 Manzil" }, { text: "📞 Aloqa" }]
         ];
         
         for (let i = 0; i < customButtons.length; i += 2) {
@@ -378,6 +378,24 @@ async function handleMessage(message) {
         return;
     }
     
+    if (text === '🏠 Mat hisoblash') {
+        userStates[chatId] = { state: 'MAT_SELECT_PRICE' };
+        const settings = loadSettings();
+        const matPrices = settings.mat_prices || [40000];
+        const inlineKeyboard = {
+            inline_keyboard: matPrices.map(p => [
+                { text: `${p.toLocaleString('uz-UZ')} so'm`, callback_data: `mat_price_${p}` }
+            ])
+        };
+        await api('sendMessage', {
+            chat_id: chatId,
+            text: "🏠 **Mat hisoblash kalkulyatori**\n\n💵 Iltimos, mat narxini tanlang:",
+            parse_mode: 'Markdown',
+            reply_markup: inlineKeyboard
+        });
+        return;
+    }
+    
     // Foydalanuvchi javob kiritayotgan bo'lsa
     if (userStates[chatId]) {
         const state = userStates[chatId].state;
@@ -430,6 +448,44 @@ async function handleMessage(message) {
             userStates[chatId].room_height = val;
             await calculateAndSendResult(chatId);
         }
+        } else if (state === 'MAT_SELECT_PRICE') {
+            await api('sendMessage', {
+                chat_id: chatId,
+                text: "⚠️ Iltimos, yuqoridagi tugmalardan birini bosib mat narxini tanlang."
+            });
+            return;
+        } else if (state === 'MAT_INPUT_WIDTH') {
+            if (isNaN(val) || val <= 0 || val > 100) {
+                await api('sendMessage', { chat_id: chatId, text: "⚠️ Noto'g'ri qiymat. Xona enini metrda kiriting (masalan: 4):" });
+                return;
+            }
+            userStates[chatId].room_width = val;
+            userStates[chatId].state = 'MAT_INPUT_LENGTH';
+            await api('sendMessage', {
+                chat_id: chatId,
+                text: "↕️ Xonaning **uzunligini** kiriting (metrda, masalan: `5`):",
+                parse_mode: 'Markdown'
+            });
+        } else if (state === 'MAT_INPUT_LENGTH') {
+            if (isNaN(val) || val <= 0 || val > 100) {
+                await api('sendMessage', { chat_id: chatId, text: "⚠️ Noto'g'ri qiymat. Xona uzunligini metrda kiriting (masalan: 5):" });
+                return;
+            }
+            const width = userStates[chatId].room_width;
+            const price = userStates[chatId].selected_price || 0;
+            const area = Math.round(width * val * 100) / 100;
+            const totalCost = Math.floor(area * price);
+            const resultText = `🏠 Xona yuzasi (kvadrati): **${area} kv.m**\n` +
+                `💰 **Jami mat ketish narxi:** **${totalCost.toLocaleString('uz-UZ')} so'm**`;
+            await api('sendMessage', {
+                chat_id: chatId,
+                text: resultText,
+                parse_mode: 'Markdown',
+                reply_markup: mainKeyboard
+            });
+            delete userStates[chatId];
+            return;
+        }
         return;
     }
     
@@ -449,6 +505,21 @@ async function handleCallbackQuery(callbackQuery) {
     const messageId = callbackQuery.message.message_id;
     
     await api('answerCallbackQuery', { callback_query_id: callbackQueryId });
+    
+    if (data.startsWith('mat_price_')) {
+        const priceVal = parseInt(data.split('_')[2]);
+        userStates[chatId] = {
+            state: 'MAT_INPUT_WIDTH',
+            selected_price: priceVal
+        };
+        await api('editMessageText', {
+            chat_id: chatId,
+            message_id: messageId,
+            text: `💵 Tanlangan narx: **${priceVal.toLocaleString('uz-UZ')} so'm**\n\n↔️ Xonaning **enini (kengligini)** kiriting (metrda, masalan: \`4\`):`,
+            parse_mode: 'Markdown'
+        });
+        return;
+    }
     
     if (data.startsWith('price_')) {
         const priceVal = parseInt(data.split('_')[1]);
