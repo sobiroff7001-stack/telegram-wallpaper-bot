@@ -8,5 +8,8 @@
     30000,
     35000
   ],
+  "mat_prices": [
+    40000
+  ],
   "custom_buttons": []
 }
