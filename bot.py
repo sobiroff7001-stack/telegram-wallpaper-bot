@@ -346,10 +346,12 @@ IMAGES_DIR = os.path.join(os.path.dirname(__file__), "images")
 def get_main_keyboard():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     btn_calc = types.KeyboardButton("🧮 Aboy hisoblash")
+    btn_mat = types.KeyboardButton("🏠 Mat hisoblash")
     btn_catalog = types.KeyboardButton("📂 Katalog")
     btn_address = types.KeyboardButton("📍 Manzil")
     btn_contact = types.KeyboardButton("📞 Aloqa")
-    markup.add(btn_calc, btn_catalog, btn_address, btn_contact)
+    markup.add(btn_calc, btn_mat)
+    markup.add(btn_catalog, btn_address, btn_contact)
     
     # Custom dynamic buttons
     settings = load_settings()
@@ -1388,6 +1390,92 @@ def handle_unknown_messages(message):
                 "Iltimos, quyidagi menyu tugmalaridan birini tanlang:", 
                 reply_markup=get_main_keyboard()
             )
+
+
+# --- MAT HISOBLASH ---
+
+def get_mat_price_keyboard():
+    settings = load_settings()
+    mat_prices = settings.get("mat_prices", [40000])
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    for p in mat_prices:
+        markup.add(types.InlineKeyboardButton(text=f"{p:,} so'm", callback_data=f"mat_price_{p}"))
+    return markup
+
+@bot.message_handler(func=lambda msg: msg.text == "🏠 Mat hisoblash")
+def start_mat_calculator(message):
+    chat_id = message.chat.id
+    user_states[chat_id] = {'state': 'MAT_SELECT_PRICE'}
+    bot.send_message(
+        chat_id,
+        "🏠 **Mat hisoblash kalkulyatori**\n\n💵 Iltimos, mat narxini tanlang:",
+        parse_mode="Markdown",
+        reply_markup=get_mat_price_keyboard()
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith('mat_price_'))
+def handle_mat_price_selection(call):
+    chat_id = call.message.chat.id
+    price_val = int(call.data.split('_')[2])
+    
+    user_states[chat_id] = {
+        'state': 'MAT_INPUT_WIDTH',
+        'selected_price': price_val
+    }
+    
+    bot.answer_callback_query(call.id)
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=call.message.message_id,
+        text=f"💵 Tanlangan narx: **{price_val:,} so'm**\n\n↔️ Xonaning **enini (kengligini)** kiriting (metrda, masalan: `4`):",
+        parse_mode="Markdown"
+    )
+
+@bot.message_handler(func=lambda msg: msg.chat.id in user_states and user_states[msg.chat.id].get('state') == 'MAT_INPUT_WIDTH')
+def handle_mat_width(message):
+    chat_id = message.chat.id
+    text = message.text.strip().replace(",", ".")
+    try:
+        width = float(text)
+        if width <= 0 or width > 100:
+            raise ValueError()
+    except ValueError:
+        bot.reply_to(message, "⚠️ Noto'g'ri qiymat. Xona enini son bilan kiriting (masalan: 4):")
+        return
+    
+    user_states[chat_id]['room_width'] = width
+    user_states[chat_id]['state'] = 'MAT_INPUT_LENGTH'
+    bot.send_message(
+        chat_id,
+        "↕️ Xonaning **uzunligini** kiriting (metrda, masalan: `5`):",
+        parse_mode="Markdown"
+    )
+
+@bot.message_handler(func=lambda msg: msg.chat.id in user_states and user_states[msg.chat.id].get('state') == 'MAT_INPUT_LENGTH')
+def handle_mat_length(message):
+    chat_id = message.chat.id
+    text = message.text.strip().replace(",", ".")
+    try:
+        length = float(text)
+        if length <= 0 or length > 100:
+            raise ValueError()
+    except ValueError:
+        bot.reply_to(message, "⚠️ Noto'g'ri qiymat. Xona uzunligini son bilan kiriting (masalan: 5):")
+        return
+    
+    width = user_states[chat_id]['room_width']
+    price = user_states[chat_id].get('selected_price', 0)
+    
+    area = round(width * length, 2)
+    total_cost = int(area * price)
+    
+    result_text = (
+        f"🏠 Xona yuzasi (kvadrati): **{area} kv.m**\n"
+        f"💰 **Jami mat ketish narxi:** **{total_cost:,} so'm**"
+    )
+    
+    bot.send_message(chat_id, result_text, parse_mode="Markdown", reply_markup=get_main_keyboard())
+    user_states.pop(chat_id, None)
 
 
 import keep_alive
