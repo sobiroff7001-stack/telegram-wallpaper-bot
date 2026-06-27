@@ -447,7 +447,6 @@ async function handleMessage(message) {
             }
             userStates[chatId].room_height = val;
             await calculateAndSendResult(chatId);
-        }
         } else if (state === 'MAT_SELECT_PRICE') {
             await api('sendMessage', {
                 chat_id: chatId,
@@ -484,7 +483,6 @@ async function handleMessage(message) {
                 reply_markup: mainKeyboard
             });
             delete userStates[chatId];
-            return;
         }
         return;
     }
