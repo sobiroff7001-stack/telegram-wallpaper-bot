@@ -33,6 +33,47 @@ user_states = {}
 # DB va GitHub sozlamalari
 DB_FILE = os.path.join(os.path.dirname(__file__), "bot_data.db")
 
+def download_file_from_github(file_path):
+    pat = config.GITHUB_PAT
+    repo = config.GITHUB_REPO
+    if not pat or not repo:
+        print("⚠️ GITHUB_PAT yoki GITHUB_REPO sozlanmagan. GitHub'dan yuklab bo'lmadi.")
+        return None
+        
+    url = f"https://api.github.com/repos/{repo}/contents/{file_path}"
+    headers = {
+        "Authorization": f"token {pat}",
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "Telegram-Bot-Syncer"
+    }
+    
+    try:
+        r = requests.get(url, headers=headers, verify=False)
+        if r.status_code == 200:
+            content_b64 = r.json().get("content", "")
+            content_b64 = content_b64.replace("\n", "").replace("\r", "")
+            return base64.b64decode(content_b64)
+    except Exception as e:
+        print(f"⚠️ GitHub'dan {file_path} yuklab olishda kutilmagan xato: {e}")
+    return None
+
+def restore_db_from_github():
+    print("🔄 GitHub'dan database yuklab olinmoqda...")
+    db_bytes = download_file_from_github("bot_data.db")
+    if db_bytes:
+        try:
+            with open(DB_FILE, "wb") as f:
+                f.write(db_bytes)
+            print("✅ Database GitHub'dan muvaffaqiyatli tiklandi.")
+            return True
+        except Exception as e:
+            print(f"❌ Database faylini yozishda xatolik: {e}")
+    else:
+        print("ℹ️ GitHub'da database topilmadi yoki yuklab bo'lmadi. Yangi yaratiladi.")
+    return False
+
+restore_db_from_github()
+
 def init_db():
     try:
         conn = sqlite3.connect(DB_FILE)
@@ -77,7 +118,10 @@ def log_user(message):
             )
             conn.commit()
             print(f"🆕 Yangi foydalanuvchi qo'shildi: {user.first_name} (@{user.username or 'yoq'})")
-        conn.close()
+            conn.close()
+            backup_db_to_github()
+        else:
+            conn.close()
     except Exception as e:
         print(f"Foydalanuvchini log qilishda xato: {e}")
 
@@ -119,7 +163,10 @@ def add_admin(chat_id, username=None):
         if not exists:
             cursor.execute("INSERT INTO admins (id, username) VALUES (?, ?)", (chat_id, username))
             conn.commit()
-        conn.close()
+            conn.close()
+            backup_db_to_github()
+        else:
+            conn.close()
         return True
     except Exception as e:
         print(f"Error adding admin: {e}")
@@ -214,6 +261,18 @@ def sync_file_to_github(file_path, content_bytes, commit_msg):
     else:
         print(f"❌ GitHub'ga yuklashda xato ({r_put.status_code}): {r_put.text}")
         return False
+
+def backup_db_to_github():
+    try:
+        if os.path.exists(DB_FILE):
+            with open(DB_FILE, "rb") as f:
+                db_bytes = f.read()
+            import threading
+            def run_backup():
+                sync_file_to_github("bot_data.db", db_bytes, "Auto-backup database")
+            threading.Thread(target=run_backup, daemon=True).start()
+    except Exception as e:
+        print(f"❌ Database backup qilishda xatolik: {e}")
 
 def get_admin_keyboard():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -890,16 +949,44 @@ def handle_product_detail(call):
         bot.send_message(chat_id, detail_text, parse_mode="Markdown", reply_markup=markup)
 
 
+def get_price_keyboard():
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    markup.add(
+        types.InlineKeyboardButton(text="22 000 so'm", callback_data="price_22000"),
+        types.InlineKeyboardButton(text="30 000 so'm", callback_data="price_30000"),
+        types.InlineKeyboardButton(text="35 000 so'm", callback_data="price_35000")
+    )
+    return markup
+
 # Oddiy kalkulyator boshlash (Asosiy menyudan bosilganda)
 @bot.message_handler(func=lambda msg: msg.text == "🧮 Aboy hisoblash")
 def start_calculator(message):
     chat_id = message.chat.id
-    user_states[chat_id] = {'state': 'INPUT_WIDTH'}
+    user_states[chat_id] = {'state': 'SELECT_PRICE'}
     bot.send_message(
         chat_id, 
-        "🧮 **Aboy hisoblash kalkulyatori**\n\n↔️ Xonaning **kengligini (enini)** kiriting (metrda, masalan: `4`):",
+        "🧮 **Aboy hisoblash kalkulyatori**\n\n💵 Iltimos, aboy narxini (yoki ish haqini) tanlang:",
         parse_mode="Markdown",
-        reply_markup=types.ReplyKeyboardRemove()
+        reply_markup=get_price_keyboard()
+    )
+
+# Narx tanlanganda ishlaydigan callback
+@bot.callback_query_handler(func=lambda call: call.data.startswith('price_'))
+def handle_price_selection(call):
+    chat_id = call.message.chat.id
+    price_val = int(call.data.split('_')[1]) # 22000, 30000, or 35000
+    
+    user_states[chat_id] = {
+        'state': 'INPUT_WIDTH',
+        'selected_price': price_val
+    }
+    
+    bot.answer_callback_query(call.id)
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=call.message.message_id,
+        text=f"💵 Tanlangan narx: **{price_val:,} so'm**\n\n↔️ Xonaning **enini (kengligini)** kiriting (metrda, masalan: `4`):",
+        parse_mode="Markdown"
     )
 
 # Xona kengligini qabul qilish
@@ -962,12 +1049,19 @@ def handle_height_input(message):
         
     width = user_states[chat_id]['room_width']
     length = user_states[chat_id]['room_length']
+    price = user_states[chat_id].get('selected_price', 0)
     
-    # Devor yuzasini hisoblash
-    perimeter = (width + length) * 2
-    wall_area = round(perimeter * height, 2)
+    # Aboy va xona o'lchamlarini hisoblash
+    calc = calculator.calculate_wallpaper(width, length, height)
+    wall_area = calc['total_area']
     
-    result_text = f"🧱 Devorlar yuzasi (kvadrati): **{wall_area} kv.m**"
+    # Kvadrat metr narxi bo'yicha jami summa
+    cost_by_sqm = int(wall_area * price)
+    
+    result_text = (
+        f"🧱 Devorlar yuzasi (kvadrati): **{wall_area} kv.m**\n"
+        f"💰 **Jami aboy ketish narxi:** **{cost_by_sqm:,} so'm**"
+    )
     
     bot.send_message(chat_id, result_text, parse_mode="Markdown", reply_markup=get_main_keyboard())
     user_states.pop(chat_id, None)
@@ -979,7 +1073,9 @@ def handle_unknown_messages(message):
     chat_id = message.chat.id
     if chat_id in user_states:
         state = user_states[chat_id]['state']
-        if state == 'INPUT_WIDTH':
+        if state == 'SELECT_PRICE':
+            bot.reply_to(message, "⚠️ Iltimos, yuqoridagi tugmalardan birini bosib aboy narxini tanlang.")
+        elif state == 'INPUT_WIDTH':
             bot.reply_to(message, "⚠️ Xona kengligini (enini) son bilan kiriting (masalan: 4):")
         elif state == 'INPUT_LENGTH':
             bot.reply_to(message, "⚠️ Xona uzunligini son bilan kiriting (masalan: 5):")
