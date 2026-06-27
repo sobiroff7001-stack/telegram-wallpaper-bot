@@ -312,7 +312,7 @@ async function handleMessage(message) {
         };
         await api('sendMessage', {
             chat_id: chatId,
-            text: "🧮 **Aboy hisoblash kalkulyatori**\n\n💵 Iltimos, aboy narxini (yoki ish haqini) tanlang:",
+            text: "🧮 **Aboy hisoblash kalkulyatori**\n\n💵 Iltimos, aboy narxini tanlang:",
             parse_mode: 'Markdown',
             reply_markup: inlineKeyboard
         });
