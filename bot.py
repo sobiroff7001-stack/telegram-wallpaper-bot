@@ -32,6 +32,56 @@ user_states = {}
 
 # DB va GitHub sozlamalari
 DB_FILE = os.path.join(os.path.dirname(__file__), "bot_data.db")
+SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "settings.json")
+
+def load_settings():
+    if not os.path.exists(SETTINGS_FILE):
+        print("🔄 settings.json topilmadi, GitHub'dan tekshirilmoqda...")
+        settings_bytes = download_file_from_github("settings.json")
+        if settings_bytes:
+            try:
+                with open(SETTINGS_FILE, "wb") as f:
+                    f.write(settings_bytes)
+                print("✅ settings.json GitHub'dan yuklab olindi.")
+            except Exception as e:
+                print(f"settings.json yozishda xato: {e}")
+        else:
+            default_settings = {
+                "store_address": config.STORE_ADDRESS,
+                "store_latitude": config.STORE_LATITUDE,
+                "store_longitude": config.STORE_LONGITUDE,
+                "store_contacts": config.STORE_CONTACTS,
+                "calculator_prices": [22000, 30000, 35000],
+                "custom_buttons": []
+            }
+            try:
+                with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+                    json.dump(default_settings, f, indent=2, ensure_ascii=False)
+                print("✅ Standart settings.json yaratildi.")
+            except Exception as e:
+                print(f"Standart settings.json yaratishda xato: {e}")
+                
+    try:
+        with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"settings.json o'qishda xato: {e}")
+        return {}
+
+def save_and_sync_settings(settings):
+    try:
+        with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+            json.dump(settings, f, indent=2, ensure_ascii=False)
+            
+        with open(SETTINGS_FILE, "rb") as f:
+            content_bytes = f.read()
+            
+        import threading
+        def run_sync():
+            sync_file_to_github("settings.json", content_bytes, "Auto-update settings.json")
+        threading.Thread(target=run_sync, daemon=True).start()
+    except Exception as e:
+        print(f"settings.json saqlashda xato: {e}")
 
 def download_file_from_github(file_path):
     pat = config.GITHUB_PAT
@@ -73,6 +123,7 @@ def restore_db_from_github():
     return False
 
 restore_db_from_github()
+load_settings()
 
 def init_db():
     try:
@@ -280,10 +331,11 @@ def get_admin_keyboard():
     btn_broadcast = types.KeyboardButton("📨 Xabar yuborish")
     btn_edit_cat = types.KeyboardButton("📂 Katalogni tahrirlash")
     btn_users = types.KeyboardButton("📥 Foydalanuvchilar ro'yxati")
+    btn_settings = types.KeyboardButton("⚙️ Sozlamalarni tahrirlash")
     btn_exit = types.KeyboardButton("⬅️ Asosiy menyu")
     markup.add(btn_stats, btn_broadcast)
     markup.add(btn_edit_cat, btn_users)
-    markup.add(btn_exit)
+    markup.add(btn_settings, btn_exit)
     return markup
 
 
@@ -298,6 +350,12 @@ def get_main_keyboard():
     btn_address = types.KeyboardButton("📍 Manzil")
     btn_contact = types.KeyboardButton("📞 Aloqa")
     markup.add(btn_calc, btn_catalog, btn_address, btn_contact)
+    
+    # Custom dynamic buttons
+    settings = load_settings()
+    custom_buttons = settings.get("custom_buttons", [])
+    for btn in custom_buttons:
+        markup.add(types.KeyboardButton(btn["name"]))
     return markup
 
 # --- Start buyrug'i ---
@@ -458,6 +516,60 @@ def handle_admin_callbacks(call):
         bot.send_message(chat_id, "Siz admin emassiz.")
         return
         
+    if call.data == "admin_set_address":
+        user_states[chat_id] = {'state': 'ADMIN_SET_ADDRESS_TEXT'}
+        bot.delete_message(chat_id, message_id)
+        bot.send_message(chat_id, "📝 **Yangi manzil matnini kiriting:**\n\n*(Masalan: Toshkent shahri, Yunusobod tumani...)*", parse_mode="Markdown", reply_markup=types.ReplyKeyboardRemove())
+        return
+        
+    elif call.data == "admin_set_contacts":
+        user_states[chat_id] = {'state': 'ADMIN_SET_CONTACTS_TEXT'}
+        bot.delete_message(chat_id, message_id)
+        bot.send_message(chat_id, "📞 **Yangi aloqa ma'lumotlarini kiriting:**\n\n*(Telefon raqamlar, telegram logini va h.k.)*", parse_mode="Markdown", reply_markup=types.ReplyKeyboardRemove())
+        return
+        
+    elif call.data == "admin_set_prices":
+        user_states[chat_id] = {'state': 'ADMIN_SET_PRICES_TEXT'}
+        bot.delete_message(chat_id, message_id)
+        bot.send_message(chat_id, "🧮 **Kalkulyator uchun yangi narxlarni kiriting** (vergul bilan ajratib yozing):\n\n*Misol uchun:* `22000, 30000, 35000`", parse_mode="Markdown", reply_markup=types.ReplyKeyboardRemove())
+        return
+        
+    elif call.data == "admin_add_button":
+        user_states[chat_id] = {'state': 'ADMIN_ADD_BTN_NAME'}
+        bot.delete_message(chat_id, message_id)
+        bot.send_message(chat_id, "➕ **Yangi tugma nomini kiriting:**\n\n*(Masalan: Aksiya)*", parse_mode="Markdown", reply_markup=types.ReplyKeyboardRemove())
+        return
+        
+    elif call.data == "admin_del_button":
+        settings = load_settings()
+        custom_buttons = settings.get("custom_buttons", [])
+        if not custom_buttons:
+            bot.edit_message_text("Hozircha qo'shimcha tugmalar mavjud emas.", chat_id, message_id)
+            return
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        for idx, btn in enumerate(custom_buttons):
+            markup.add(types.InlineKeyboardButton(text=btn["name"], callback_data=f"admin_delbtn_{idx}"))
+        markup.add(types.InlineKeyboardButton(text="⬅️ Orqaga", callback_data="admin_set_cancel"))
+        bot.edit_message_text("❌ **O'chirmoqchi bo'lgan tugmani tanlang:**", chat_id, message_id, reply_markup=markup, parse_mode="Markdown")
+        return
+        
+    elif call.data == "admin_set_cancel":
+        bot.delete_message(chat_id, message_id)
+        bot.send_message(chat_id, "Bekor qilindi.", reply_markup=get_admin_keyboard())
+        return
+        
+    elif call.data.startswith("admin_delbtn_"):
+        idx = int(call.data.split("_")[2])
+        settings = load_settings()
+        custom_buttons = settings.get("custom_buttons", [])
+        if idx < len(custom_buttons):
+            deleted_btn = custom_buttons.pop(idx)
+            settings["custom_buttons"] = custom_buttons
+            save_and_sync_settings(settings)
+            bot.edit_message_text(f"❌ **'{deleted_btn['name']}'** tugmasi o'chirildi!", chat_id, message_id)
+            bot.send_message(chat_id, "O'zgarishlar saqlandi.", reply_markup=get_admin_keyboard())
+        return
+
     if call.data == "admin_prod_add":
         products_data = load_products()
         markup = types.InlineKeyboardMarkup(row_width=1)
@@ -759,20 +871,28 @@ def send_address(message):
     chat_id = message.chat.id
     user_states.pop(chat_id, None)
     
+    settings = load_settings()
+    lat = settings.get("store_latitude", config.STORE_LATITUDE)
+    lng = settings.get("store_longitude", config.STORE_LONGITUDE)
+    addr = settings.get("store_address", config.STORE_ADDRESS)
+    
     # Geografik joylashuv (Location) yuboramiz
     try:
-        bot.send_location(chat_id, config.STORE_LATITUDE, config.STORE_LONGITUDE)
+        bot.send_location(chat_id, lat, lng)
     except Exception as e:
         print(f"Lokatsiya yuborishda xatolik: {e}")
         
     # Manzil matnini tagida yuboramiz
-    bot.send_message(chat_id, config.STORE_ADDRESS, parse_mode="Markdown")
+    bot.send_message(chat_id, addr, parse_mode="Markdown")
 
 @bot.message_handler(func=lambda msg: msg.text == "📞 Aloqa")
 def send_contact(message):
     chat_id = message.chat.id
     user_states.pop(chat_id, None)
-    bot.send_message(chat_id, config.STORE_CONTACTS, parse_mode="Markdown")
+    
+    settings = load_settings()
+    contacts = settings.get("store_contacts", config.STORE_CONTACTS)
+    bot.send_message(chat_id, contacts, parse_mode="Markdown")
 
 # --- Katalog handlerlari ---
 
@@ -950,12 +1070,11 @@ def handle_product_detail(call):
 
 
 def get_price_keyboard():
+    settings = load_settings()
+    prices = settings.get("calculator_prices", [22000, 30000, 35000])
     markup = types.InlineKeyboardMarkup(row_width=1)
-    markup.add(
-        types.InlineKeyboardButton(text="22 000 so'm", callback_data="price_22000"),
-        types.InlineKeyboardButton(text="30 000 so'm", callback_data="price_30000"),
-        types.InlineKeyboardButton(text="35 000 so'm", callback_data="price_35000")
-    )
+    for p in prices:
+        markup.add(types.InlineKeyboardButton(text=f"{p:,} so'm", callback_data=f"price_{p}"))
     return markup
 
 # Oddiy kalkulyator boshlash (Asosiy menyudan bosilganda)
@@ -1066,6 +1185,177 @@ def handle_height_input(message):
     bot.send_message(chat_id, result_text, parse_mode="Markdown", reply_markup=get_main_keyboard())
     user_states.pop(chat_id, None)
 
+
+@bot.message_handler(func=lambda msg: msg.text == "⚙️ Sozlamalarni tahrirlash")
+def edit_settings_menu(message):
+    chat_id = message.chat.id
+    if not is_admin(chat_id):
+        return
+    user_states.pop(chat_id, None)
+    
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    btn_addr = types.InlineKeyboardButton(text="📍 Manzilni tahrirlash", callback_data="admin_set_address")
+    btn_cont = types.InlineKeyboardButton(text="📞 Aloqani tahrirlash", callback_data="admin_set_contacts")
+    btn_prc = types.InlineKeyboardButton(text="🧮 Narxlarni tahrirlash", callback_data="admin_set_prices")
+    btn_add_btn = types.InlineKeyboardButton(text="➕ Yangi tugma qo'shish", callback_data="admin_add_button")
+    btn_del_btn = types.InlineKeyboardButton(text="❌ Tugmani o'chirish", callback_data="admin_del_button")
+    
+    markup.add(btn_addr, btn_cont, btn_prc, btn_add_btn, btn_del_btn)
+    bot.send_message(chat_id, "⚙️ **Sozlamalarni tahrirlash bo'limi:**", reply_markup=markup, parse_mode="Markdown")
+
+# --- ADMIN SETTINGS STATE HANDLERS ---
+
+@bot.message_handler(func=lambda msg: msg.chat.id in user_states and user_states[msg.chat.id].get('state') == 'ADMIN_SET_ADDRESS_TEXT')
+def handle_admin_set_address_text(message):
+    chat_id = message.chat.id
+    text = message.text.strip()
+    if not text:
+        bot.reply_to(message, "Manzil matni bo'sh bo'lishi mumkin emas. Qayta kiriting:")
+        return
+        
+    user_states[chat_id]['address_text'] = text
+    user_states[chat_id]['state'] = 'ADMIN_SET_ADDRESS_LOCATION'
+    bot.send_message(
+        chat_id,
+        "📍 **Endi manzilning geografik joylashuvini (Location) yuboring** yoki koordinatalarni kiriting (masalan: `40.804377, 72.351327`):",
+        parse_mode="Markdown"
+    )
+
+@bot.message_handler(func=lambda msg: msg.chat.id in user_states and user_states[msg.chat.id].get('state') == 'ADMIN_SET_ADDRESS_LOCATION', content_types=['text', 'location'])
+def handle_admin_set_address_location(message):
+    chat_id = message.chat.id
+    
+    lat, lng = None, None
+    if message.content_type == 'location':
+        lat = message.location.latitude
+        lng = message.location.longitude
+    else:
+        # Parse coordinates from text
+        text = message.text.strip().replace(" ", "")
+        try:
+            parts = text.split(",")
+            lat = float(parts[0])
+            lng = float(parts[1])
+        except Exception:
+            bot.reply_to(message, "⚠️ Noto'g'ri koordinata formati. Iltimos, xaritadan joylashuvni yuboring yoki `40.804377, 72.351327` shaklida yozing:")
+            return
+            
+    addr_text = user_states[chat_id]['address_text']
+    
+    # Save settings
+    settings = load_settings()
+    settings["store_address"] = addr_text
+    settings["store_latitude"] = lat
+    settings["store_longitude"] = lng
+    save_and_sync_settings(settings)
+    
+    bot.send_message(chat_id, "✅ **Manzil va joylashuv muvaffaqiyatli saqlandi!**", parse_mode="Markdown", reply_markup=get_admin_keyboard())
+    user_states.pop(chat_id, None)
+
+@bot.message_handler(func=lambda msg: msg.chat.id in user_states and user_states[msg.chat.id].get('state') == 'ADMIN_SET_CONTACTS_TEXT')
+def handle_admin_set_contacts_text(message):
+    chat_id = message.chat.id
+    text = message.text.strip()
+    if not text:
+        bot.reply_to(message, "Aloqa ma'lumotlari bo'sh bo'lishi mumkin emas. Qayta kiriting:")
+        return
+        
+    settings = load_settings()
+    settings["store_contacts"] = text
+    save_and_sync_settings(settings)
+    
+    bot.send_message(chat_id, "✅ **Aloqa ma'lumotlari muvaffaqiyatli saqlandi!**", parse_mode="Markdown", reply_markup=get_admin_keyboard())
+    user_states.pop(chat_id, None)
+
+@bot.message_handler(func=lambda msg: msg.chat.id in user_states and user_states[msg.chat.id].get('state') == 'ADMIN_SET_PRICES_TEXT')
+def handle_admin_set_prices_text(message):
+    chat_id = message.chat.id
+    text = message.text.strip().replace(" ", "")
+    
+    try:
+        prices = [int(x) for x in text.split(",") if x]
+        if not prices:
+            raise ValueError()
+    except Exception:
+        bot.reply_to(message, "⚠️ Noto'g'ri format. Narxlarni `22000, 30000, 35000` shaklida kiriting:")
+        return
+        
+    settings = load_settings()
+    settings["calculator_prices"] = prices
+    save_and_sync_settings(settings)
+    
+    bot.send_message(chat_id, f"✅ **Kalkulyator narxlari muvaffaqiyatli saqlandi:** {', '.join(map(str, prices))} so'm", parse_mode="Markdown", reply_markup=get_admin_keyboard())
+    user_states.pop(chat_id, None)
+
+@bot.message_handler(func=lambda msg: msg.chat.id in user_states and user_states[msg.chat.id].get('state') == 'ADMIN_ADD_BTN_NAME')
+def handle_admin_add_btn_name(message):
+    chat_id = message.chat.id
+    text = message.text.strip()
+    if not text:
+        bot.reply_to(message, "Tugma nomi bo'sh bo'lishi mumkin emas. Qayta kiriting:")
+        return
+        
+    default_buttons = ["🧮 Aboy hisoblash", "📂 Katalog", "📍 Manzil", "📞 Aloqa"]
+    if text in default_buttons:
+        bot.reply_to(message, "⚠️ Record conflict: Ushbu nomli standart tugma mavjud. Boshqa nom kiriting:")
+        return
+        
+    user_states[chat_id]['btn_name'] = text
+    user_states[chat_id]['state'] = 'ADMIN_ADD_BTN_REPLY'
+    bot.send_message(
+        chat_id,
+        f"📝 **'{text}'** tugmasi bosilganda bot yuborishi kerak bo'lgan matnni (javobni) kiriting:",
+        parse_mode="Markdown"
+    )
+
+@bot.message_handler(func=lambda msg: msg.chat.id in user_states and user_states[msg.chat.id].get('state') == 'ADMIN_ADD_BTN_REPLY')
+def handle_admin_add_btn_reply(message):
+    chat_id = message.chat.id
+    text = message.text.strip()
+    if not text:
+        bot.reply_to(message, "Javob matni bo'sh bo'lishi mumkin emas. Qayta kiriting:")
+        return
+        
+    btn_name = user_states[chat_id]['btn_name']
+    
+    settings = load_settings()
+    custom_buttons = settings.get("custom_buttons", [])
+    
+    exists = False
+    for btn in custom_buttons:
+        if btn["name"] == btn_name:
+            btn["reply_text"] = text
+            exists = True
+            break
+    if not exists:
+        custom_buttons.append({"name": btn_name, "reply_text": text})
+        
+    settings["custom_buttons"] = custom_buttons
+    save_and_sync_settings(settings)
+    
+    bot.send_message(chat_id, f"✅ **'{btn_name}' tugmasi muvaffaqiyatli qo'shildi!**", parse_mode="Markdown", reply_markup=get_admin_keyboard())
+    user_states.pop(chat_id, None)
+
+# --- CUSTOM DYNAMIC BUTTON RESPONSE HANDLER ---
+
+def is_custom_button(text):
+    if not text:
+        return False
+    settings = load_settings()
+    custom_buttons = settings.get("custom_buttons", [])
+    return any(btn["name"] == text for btn in custom_buttons)
+
+@bot.message_handler(func=lambda msg: is_custom_button(msg.text))
+def handle_custom_buttons(message):
+    chat_id = message.chat.id
+    text = message.text
+    
+    settings = load_settings()
+    custom_buttons = settings.get("custom_buttons", [])
+    for btn in custom_buttons:
+        if btn["name"] == text:
+            bot.send_message(chat_id, btn["reply_text"], parse_mode="Markdown")
+            return
 
 # --- Noto'g'ri kiritilgan matnlarni qayta ishlash ---
 @bot.message_handler(func=lambda msg: True)
