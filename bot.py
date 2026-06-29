@@ -1,4 +1,4 @@
-﻿import os
+import os
 import telebot
 from telebot import types
 import requests
@@ -505,8 +505,9 @@ def edit_catalog_menu(message):
     markup = types.InlineKeyboardMarkup(row_width=1)
     btn_add = types.InlineKeyboardButton(text="➕ Mahsulot qo'shish", callback_data="admin_prod_add")
     btn_del = types.InlineKeyboardButton(text="❌ Mahsulotni o'chirish", callback_data="admin_prod_del")
-    markup.add(btn_add, btn_del)
-    bot.send_message(chat_id, "📂 **Katalogni tahrirlash bo'limi:**", reply_markup=markup)
+    btn_img = types.InlineKeyboardButton(text="🖼 Rasmni o'zgartirish", callback_data="admin_prod_img")
+    markup.add(btn_add, btn_del, btn_img)
+    bot.send_message(chat_id, "📂 **Katalogni tahrirlash bo'limi:**", reply_markup=markup, parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith('admin_'))
 def handle_admin_callbacks(call):
@@ -595,6 +596,197 @@ def handle_admin_callbacks(call):
             message_id=message_id,
             text="❌ **Mahsulot o'chirish**\n\nQaysi kategoriyadan mahsulot o'chiramiz? Kategoriyani tanlang:",
             reply_markup=markup
+        )
+
+    # ==========================================
+    # RASM O'ZGARTIRISH - Kategoriya tanlash
+    # ==========================================
+    elif call.data == "admin_prod_img":
+        products_data = load_products()
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        for index, cat in enumerate(products_data):
+            markup.add(types.InlineKeyboardButton(text=cat['category'], callback_data=f"admin_img_cat_{index}"))
+        markup.add(types.InlineKeyboardButton(text="⬅️ Orqaga", callback_data="admin_img_back_main"))
+        bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text="🖼 **Rasmni o'zgartirish**\n\nQaysi kategoriyadan mahsulot rasmini o'zgartirmoqchisiz?",
+            reply_markup=markup,
+            parse_mode="Markdown"
+        )
+
+    elif call.data == "admin_img_back_main":
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        btn_add = types.InlineKeyboardButton(text="➕ Mahsulot qo'shish", callback_data="admin_prod_add")
+        btn_del = types.InlineKeyboardButton(text="❌ Mahsulotni o'chirish", callback_data="admin_prod_del")
+        btn_img = types.InlineKeyboardButton(text="🖼 Rasmni o'zgartirish", callback_data="admin_prod_img")
+        markup.add(btn_add, btn_del, btn_img)
+        bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text="📂 **Katalogni tahrirlash bo'limi:**",
+            reply_markup=markup,
+            parse_mode="Markdown"
+        )
+
+    # Rasm o'zgartirish - Mahsulot tanlash
+    elif call.data.startswith("admin_img_cat_"):
+        cat_index = int(call.data.split('_')[3])
+        products_data = load_products()
+        if cat_index >= len(products_data):
+            return
+        cat = products_data[cat_index]
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        for item in cat['items']:
+            has_img = "🖼" if item.get('image_file') else "🚫"
+            markup.add(types.InlineKeyboardButton(
+                text=f"{has_img} {item['name']}",
+                callback_data=f"admin_img_prod_{cat_index}_{item['id']}"
+            ))
+        markup.add(types.InlineKeyboardButton(text="⬅️ Orqaga", callback_data="admin_prod_img"))
+        bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text=f"🖼 **{cat['category']}** - Mahsulotni tanlang:\n\n🖼 = Rasm bor | 🚫 = Rasmsiz",
+            reply_markup=markup,
+            parse_mode="Markdown"
+        )
+
+    # Rasm o'zgartirish - Mahsulot rasmi ko'rish va amallar
+    elif call.data.startswith("admin_img_prod_"):
+        parts = call.data.split('_')
+        cat_index = int(parts[3])
+        item_id = '_'.join(parts[4:])
+        products_data = load_products()
+        if cat_index >= len(products_data):
+            return
+        cat = products_data[cat_index]
+        selected_item = None
+        for item in cat['items']:
+            if item['id'] == item_id:
+                selected_item = item
+                break
+        if not selected_item:
+            return
+
+        image_file = selected_item.get('image_file')
+        image_path = os.path.join(IMAGES_DIR, image_file) if image_file else None
+
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        markup.add(types.InlineKeyboardButton(
+            text="📤 Yangi rasm yuklash",
+            callback_data=f"admin_img_upload_{cat_index}_{item_id}"
+        ))
+        if image_file:
+            markup.add(types.InlineKeyboardButton(
+                text="🗑 Rasmni o'chirish",
+                callback_data=f"admin_img_delete_{cat_index}_{item_id}"
+            ))
+        markup.add(types.InlineKeyboardButton(
+            text="⬅️ Orqaga",
+            callback_data=f"admin_img_cat_{cat_index}"
+        ))
+
+        caption = (
+            f"🖼 **{selected_item['name']}**\n\n"
+            f"Mavjud rasm: {'✅ ' + image_file if image_file else '❌ Yo\'q'}\n\n"
+            f"Quyidagi amallardan birini tanlang:"
+        )
+
+        try:
+            bot.delete_message(chat_id, message_id)
+        except Exception:
+            pass
+
+        if image_path and os.path.exists(image_path):
+            with open(image_path, 'rb') as photo:
+                bot.send_photo(
+                    chat_id, photo,
+                    caption=caption,
+                    parse_mode="Markdown",
+                    reply_markup=markup
+                )
+        else:
+            bot.send_message(
+                chat_id,
+                caption + "\n\n_(Rasm topilmadi yoki yuklanmagan)_",
+                parse_mode="Markdown",
+                reply_markup=markup
+            )
+
+    # Rasmni o'chirish
+    elif call.data.startswith("admin_img_delete_"):
+        parts = call.data.split('_')
+        cat_index = int(parts[3])
+        item_id = '_'.join(parts[4:])
+        products_data = load_products()
+        if cat_index >= len(products_data):
+            return
+        cat = products_data[cat_index]
+        for item in cat['items']:
+            if item['id'] == item_id:
+                old_image_file = item.get('image_file')
+                # Rasmni products.json dan o'chirish
+                item.pop('image_file', None)
+                # Local faylni o'chirish
+                if old_image_file:
+                    old_path = os.path.join(IMAGES_DIR, old_image_file)
+                    if os.path.exists(old_path):
+                        try:
+                            os.remove(old_path)
+                        except Exception as e:
+                            print(f"Lokal rasmni o'chirishda xato: {e}")
+                break
+
+        file_path = os.path.join(os.path.dirname(__file__), 'products.json')
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(products_data, f, indent=2, ensure_ascii=False)
+
+        try:
+            bot.delete_message(chat_id, message_id)
+        except Exception:
+            pass
+
+        bot.send_message(
+            chat_id,
+            "🗑 **Rasm muvaffaqiyatli o'chirildi!**\n\nGitHub'ga yuklanmoqda...",
+            parse_mode="Markdown"
+        )
+
+        with open(file_path, 'rb') as f:
+            content_bytes = f.read()
+        sync_file_to_github('products.json', content_bytes, f"Remove image from product {item_id}")
+
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        markup.add(types.InlineKeyboardButton(text="📂 Katalog tahrirlashga qaytish", callback_data="admin_prod_img"))
+        bot.send_message(
+            chat_id,
+            "✅ O'zgarishlar saqlandi va GitHub'ga yuklandi!",
+            reply_markup=get_admin_keyboard()
+        )
+
+    # Yangi rasm yuklash - holat o'rnatish
+    elif call.data.startswith("admin_img_upload_"):
+        parts = call.data.split('_')
+        cat_index = int(parts[3])
+        item_id = '_'.join(parts[4:])
+
+        user_states[chat_id] = {
+            'state': 'ADMIN_IMG_UPLOAD',
+            'img_cat_index': cat_index,
+            'img_item_id': item_id
+        }
+
+        try:
+            bot.delete_message(chat_id, message_id)
+        except Exception:
+            pass
+
+        bot.send_message(
+            chat_id,
+            "📤 **Yangi rasmni yuboring:**\n\n_(Faqat rasm formati qabul qilinadi. Bekor qilish uchun /skip yuboring)_",
+            parse_mode="Markdown",
+            reply_markup=types.ReplyKeyboardRemove()
         )
         
     elif call.data == "admin_add_cat_new":
@@ -762,7 +954,108 @@ def handle_admin_add_prod_unit(message):
         parse_mode="Markdown"
     )
 
+
 import time
+
+# ==========================================
+# RASM YUKLASH HANDLERI (ADMIN_IMG_UPLOAD)
+# ==========================================
+@bot.message_handler(
+    func=lambda msg: msg.chat.id in user_states and user_states[msg.chat.id].get('state') == 'ADMIN_IMG_UPLOAD',
+    content_types=['text', 'photo']
+)
+def handle_admin_img_upload(message):
+    chat_id = message.chat.id
+    state_data = user_states.get(chat_id, {})
+    cat_index = state_data.get('img_cat_index')
+    item_id = state_data.get('img_item_id')
+
+    # Bekor qilish
+    if message.text and message.text.strip() == '/skip':
+        user_states.pop(chat_id, None)
+        bot.send_message(
+            chat_id,
+            "❌ Rasm yuklash bekor qilindi.",
+            reply_markup=get_admin_keyboard()
+        )
+        return
+
+    if message.content_type != 'photo':
+        bot.reply_to(message, "⚠️ Iltimos rasm yuboring (yoki bekor qilish uchun /skip yuboring):")
+        return
+
+    try:
+        photo_info = message.photo[-1]
+        file_info = bot.get_file(photo_info.file_id)
+
+        file_url = f"https://api.telegram.org/file/bot{config.BOT_TOKEN}/{file_info.file_path}"
+        r = requests.get(file_url, verify=False)
+        if r.status_code != 200:
+            bot.reply_to(message, "⚠️ Telegram'dan rasmni yuklab olishda xatolik. Qaytadan urinib ko'ring:")
+            return
+
+        file_bytes = r.content
+        new_filename = f"prod_{int(time.time())}.jpg"
+        local_image_path = os.path.join(IMAGES_DIR, new_filename)
+
+        os.makedirs(IMAGES_DIR, exist_ok=True)
+        with open(local_image_path, 'wb') as f:
+            f.write(file_bytes)
+
+        # products.json ni yangilash
+        products_data = load_products()
+        if cat_index < len(products_data):
+            cat = products_data[cat_index]
+            for item in cat['items']:
+                if item['id'] == item_id:
+                    # Eski rasmni o'chirish (local)
+                    old_file = item.get('image_file')
+                    if old_file:
+                        old_path = os.path.join(IMAGES_DIR, old_file)
+                        if os.path.exists(old_path):
+                            try:
+                                os.remove(old_path)
+                            except Exception as e:
+                                print(f"Eski rasmni o'chirishda xato: {e}")
+                    # Yangi rasm nomini saqlash
+                    item['image_file'] = new_filename
+                    break
+
+        file_path = os.path.join(os.path.dirname(__file__), 'products.json')
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(products_data, f, indent=2, ensure_ascii=False)
+
+        bot.send_message(chat_id, "🔄 Rasm saqlandi. GitHub'ga yuklanmoqda...")
+
+        # Rasmni GitHub'ga yuklash
+        img_sync_ok = sync_file_to_github(f"images/{new_filename}", file_bytes, f"Update image for product {item_id}")
+
+        # products.json ni GitHub'ga yuklash
+        with open(file_path, 'rb') as f:
+            json_bytes = f.read()
+        json_sync_ok = sync_file_to_github('products.json', json_bytes, f"Update image_file for product {item_id}")
+
+        user_states.pop(chat_id, None)
+
+        if img_sync_ok and json_sync_ok:
+            bot.send_message(
+                chat_id,
+                f"✅ **Rasm muvaffaqiyatli yangilandi va GitHub'ga yuklandi!**\n\n📄 Fayl nomi: `{new_filename}`\n\nRender 1-2 daqiqada botni qayta ishga tushiradi.",
+                parse_mode="Markdown",
+                reply_markup=get_admin_keyboard()
+            )
+        else:
+            bot.send_message(
+                chat_id,
+                "⚠️ Rasm saqlandi, lekin GitHub'ga yuklashda xatolik yuz berdi.",
+                reply_markup=get_admin_keyboard()
+            )
+
+    except Exception as e:
+        bot.send_message(chat_id, f"⚠️ Rasmni qayta ishlashda xatolik: {e}", reply_markup=get_admin_keyboard())
+        user_states.pop(chat_id, None)
+
+
 @bot.message_handler(func=lambda msg: msg.chat.id in user_states and user_states[msg.chat.id]['state'] == 'ADMIN_ADD_PROD_PHOTO', content_types=['text', 'photo'])
 def handle_admin_add_prod_photo(message):
     chat_id = message.chat.id
